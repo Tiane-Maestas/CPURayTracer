@@ -1,6 +1,6 @@
 #pragma once
 #include <FreeImage.h>
-#include "Scene.h"
+#include "RayTracer.h"
 
 class Renderer 
 {
@@ -12,7 +12,7 @@ public:
 	// Saves 'imagePixels' to a PNG file.
 	void SaveImage();
 private:
-	Scene* scene;
-	BYTE* imagePixels;
-	RenderingOptions options;
+	Scene* m_scene;
+	BYTE* m_imagePixels;
+	RenderingOptions m_options;
 };

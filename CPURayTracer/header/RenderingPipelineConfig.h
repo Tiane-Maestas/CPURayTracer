@@ -21,6 +21,7 @@ struct RenderingOptions
 	uint64_t ImageWidth = 640;
 	uint64_t ImageHeight = 480;
 	uint32_t MaxRayDepth = 5;
+	uint32_t RaysPerPixel = 5;
 	string OutputFileName = "RenderedImage.png";
 	vec4 BackgroundColor = vec4(0, 0, 0, 0);
 };
