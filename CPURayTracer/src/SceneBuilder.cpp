@@ -143,17 +143,17 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     }
                 }
                 else if (cmd == "directional") { // Add Lights to the Scene.
-                    bool validinput = ReadCommandParameters(cmdParams, 7, params); // x, y, z, r, g, b, a 
+                    bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) {
-                        shared_ptr<Directional> light = make_unique<Directional>(params[0], params[1], params[2], params[3], params[4], params[5], params[6]);
+                        shared_ptr<Directional> light = make_unique<Directional>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         scene->addLight(light);
                     }
                 }
                 else if (cmd == "point") {
-                    bool validinput = ReadCommandParameters(cmdParams, 7, params); // x, y, z, r, g, b, a 
+                    bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) {
-                        shared_ptr<Point> light = make_unique<Point>(params[0], params[1], params[2], params[3], params[4], params[5], params[6]);
+                        shared_ptr<Point> light = make_unique<Point>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         light->setAttenuation(vec3(attenuation[0], attenuation[1], attenuation[2]));
                         scene->addLight(light);
@@ -224,7 +224,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     if (validinput) {
                         vec3 axis(params[0], params[1], params[2]);
                         mat4& T = transfstack.top();
-                        T = rotate(T, params[3], axis);
+                        T = rotate(T, glm::radians(params[3]), axis);
                     }
                 }
                 else if (cmd == "pushTransform") {

@@ -49,6 +49,7 @@ tri 0 3 2
 tri 0 2 1
 tri 4 5 6 
 tri 4 6 7 
+mesh leg4
 
 popTransform
 pushTransform 
@@ -73,6 +74,7 @@ tri 0 3 2
 tri 0 2 1
 tri 4 5 6 
 tri 4 6 7 
+mesh leg4
 
 # leg 2: Note that I'm only changing a single translation command.
 
@@ -93,6 +95,7 @@ tri 0 3 2
 tri 0 2 1
 tri 4 5 6 
 tri 4 6 7 
+mesh leg4
 
 # leg 3: Note that I'm only changing a single translation command.
 
@@ -113,6 +116,7 @@ tri 0 3 2
 tri 0 2 1
 tri 4 5 6 
 tri 4 6 7 
+mesh leg4
 
 # leg 4: Note that I'm only changing a single translation command.
 
@@ -133,6 +137,7 @@ tri 0 3 2
 tri 0 2 1
 tri 4 5 6 
 tri 4 6 7 
+mesh leg4
 
 
 # Now draw the spheres
@@ -143,7 +148,7 @@ pushTransform
 translate  0 0 0.5
 rotate 0 0 1 45
 scale 1.0 0.25 0.25 
-sphere 0 0 0 1
+elp 0 0 0 1
 
 emission 1 0 0
 popTransform
@@ -151,34 +156,34 @@ pushTransform
 translate  0 0 0.5
 rotate 0 0 1 -45
 scale 1.0 0.25 0.25 
-sphere 0 0 0 1
+elp 0 0 0 1
 
 emission 0 1 1 
 popTransform
 pushTransform
 translate -1.5 -.8 0.65
 scale 0.4 0.4 0.4
-sphere 0 0 0 1
+elp 0 0 0 1
 
 emission 0 1 1 
 popTransform
 pushTransform
 translate 1.5 -.8 0.65
 scale 0.4 0.4 0.4
-sphere 0 0 0 1
+elp 0 0 0 1
 
 emission 0 1 1 
 popTransform
 pushTransform
 translate 1.5 .8 0.65
 scale 0.4 0.4 0.4
-sphere 0 0 0 1
+elp 0 0 0 1
 
 emission 0 1 1 
 popTransform
 pushTransform
 translate -1.5 .8 0.65
 scale 0.4 0.4 0.4
-sphere 0 0 0 1
+elp 0 0 0 1
 
 

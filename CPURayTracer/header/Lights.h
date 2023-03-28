@@ -4,25 +4,25 @@
 class Light 
 {
 public:
-	Light(float x, float y, float z, float r, float g, float b, float a) { m_pos = vec4(x, y, z, 1); m_color = vec4(r, g, b, a); }
+	Light(float x, float y, float z, float r, float g, float b) { m_pos = vec4(x, y, z, 1); m_color = vec3(r, g, b); }
 	virtual ~Light() {}
 	// Getters
 	vec4 getPosition() { return m_pos; }
-	vec4 getColor() { return m_color; }
+	vec3 getColor() { return m_color; }
 	// Setters
 	void UpdateTransform(mat4 transf) { m_transf = transf; }
 	// This will transform light position by current 'transf'.
 	void Transform();
 protected:
 	vec4 m_pos;
-	vec4 m_color;
+	vec3 m_color;
 	mat4 m_transf = mat4(1.0);
 };
 
 class Point : public Light 
 {
 public:
-	Point(float x, float y, float z, float r, float g, float b, float a) : Light(x, y, z, r, g, b, a) {}
+	Point(float x, float y, float z, float r, float g, float b) : Light(x, y, z, r, g, b) {}
 	~Point() {}
 	// Getters
 	float getIntensity() { return m_intensity; }
@@ -39,6 +39,6 @@ class Directional : public Light
 {
 public:
 	static vec3 attenuation;
-	Directional(float x, float y, float z, float r, float g, float b, float a) : Light(x, y, z, r, g, b, a) {}
+	Directional(float x, float y, float z, float r, float g, float b) : Light(x, y, z, r, g, b) {}
 	~Directional() {}
 };

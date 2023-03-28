@@ -38,7 +38,7 @@ void RayTracer::TraceImage(Scene* scene)
 			Intersection intersection = FindIntersection(scene, ray);
 
 			uint8_t color[3] = { 0, 0, 0 };
-			vec4 col = FindColor(scene, intersection, 0);
+			vec3 col = FindColor(scene, intersection, 0);
 			TransformColor(color, col);
 
 			ColorPixel(pixel, color);
@@ -300,20 +300,20 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 // ---End of Intersection Section---
 
 // Helper function for 'FindColor'
-vec4 ComputeColor(const vec4 direction, const vec4 normal, const vec4 halfvec, const vec4 color, const vec4 diffuse, const vec4 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
+vec3 ComputeColor(const vec4 direction, const vec4 normal, const vec4 halfvec, const vec3 color, const vec3 diffuse, const vec3 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
 {
-	float nDotL = dot(normal, direction);
-	vec4 lambert = diffuse * color * max(nDotL, 0.0f);
+	float nDotL = dot(vec3(normal), vec3(direction));
+	vec3 lambert = diffuse * color * max(nDotL, 0.0f);
 
 	float nDotH = dot(normal, halfvec);
-	vec4 phong = specular * color * pow(max(nDotH, 0.0f), shininess);
+	vec3 phong = specular * color * pow(max(nDotH, 0.0f), shininess);
 
 	float attenuate = intensity / (attenuation.x + attenuation.y * distance + attenuation.z * pow(distance, 2));
 
 	return attenuate * (lambert + phong);
 }
 
-vec4 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursiveCall)
+vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursiveCall)
 {
 	if (intersection.hitMesh == nullptr) { return m_defaultColor; } // Return background if hit nothing.
 
@@ -321,7 +321,7 @@ vec4 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 	vec4 pos = intersection.hitPos;
 	vec4 normal = intersection.hitMesh.get()->getNormal(intersection.triangleId, pos);
 
-	vec4 currentColor = hitMaterial.ambient + hitMaterial.emission;
+	vec3 currentColor = hitMaterial.ambient + hitMaterial.emission;
 
 	// Add color from the lights.
 	vec4 towardsRayOrigin = normalize(intersection.ray.getPosition() - pos); // Vector to origin of ray cast. Needed for half vector.
@@ -357,7 +357,7 @@ vec4 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 	}
 
 	// Add color from reflections.
-	if (hitMaterial.specular != vec4(0.0))
+	if (hitMaterial.specular != vec3(0.0))
 	{
 		vec4 hitDir = intersection.ray.getDirection();
 		vec4 direction = normalize(hitDir - 2 * dot(hitDir, normal) * normal);
@@ -368,19 +368,18 @@ vec4 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 	return currentColor;
 }
 
-vec4 RayTracer::ColorFromReflections(Scene* scene, Ray reflectionRay, int recursiveCall)
+vec3 RayTracer::ColorFromReflections(Scene* scene, Ray reflectionRay, int recursiveCall)
 {
-	if (recursiveCall >= m_maxRayDepth) { return vec4(0.0); } // Add nothing if we hit reflection depth.
+	if (recursiveCall >= m_maxRayDepth) { return vec3(0.0); } // Add nothing if we hit reflection depth.
 	Intersection intersection = FindIntersection(scene, reflectionRay);
 	return FindColor(scene, intersection, ++recursiveCall);
 }
 
-void RayTracer::TransformColor(uint8_t* properColor, vec4 color)
+void RayTracer::TransformColor(uint8_t* properColor, vec3 color)
 {
 	float r = color.x * 255;
 	float g = color.y * 255;
 	float b = color.z * 255;
-	float a = color.w * 255;
 	properColor[0] = (r > 255) ? 255 : (uint8_t)r;
 	properColor[1] = (g > 255) ? 255 : (uint8_t)g;
 	properColor[2] = (b > 255) ? 255 : (uint8_t)b;

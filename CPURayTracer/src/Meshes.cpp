@@ -10,12 +10,12 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c)
 void Triangle::Transform(const mat4& transf)
 {
 	m_a = transf * m_a; m_b = transf * m_b; m_c = transf * m_c;
-	m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 1);
-	m_normal = normalize(m_normal);
-	/*m_aNorm = transpose(inverse(transf)) * m_aNorm;
+	/*m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 1);
+	m_normal = normalize(m_normal);*/
+	m_aNorm = transpose(inverse(transf)) * m_aNorm;
 	m_bNorm = transpose(inverse(transf)) * m_bNorm;
 	m_cNorm = transpose(inverse(transf)) * m_cNorm;
-	m_normal = transpose(inverse(transf)) * m_normal;*/
+	m_normal = transpose(inverse(transf)) * m_normal;
 }
 
 vec4 Triangle::getNormal(vec4 pos)
@@ -35,7 +35,7 @@ vec4 Mesh::getNormal(int id, vec4 pos)
 void Mesh::Transform()
 {
 	m_pos = m_transf * m_pos;
-	for (Triangle tri : m_triangles)
+	for (Triangle& tri : m_triangles)
 	{
 		tri.Transform(m_transf);
 	}

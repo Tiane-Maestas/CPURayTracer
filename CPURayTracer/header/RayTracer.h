@@ -39,7 +39,7 @@ private:
 	uint8_t* m_imagePixels;
 	float m_imageWidth = 120;
 	float m_imageHeight = 120;
-	vec4 m_defaultColor = vec4(0.0);
+	vec3 m_defaultColor = vec3(0.0);
 	int m_maxRayDepth = 5;
 	int m_raysPerPixel = 1;
 	// Builds a Ray given the scene's camera and the x and y pixel of the image.
@@ -47,11 +47,11 @@ private:
 	// Returns the Paramater 't' that tells where the given ray hits the scene.
 	Intersection FindIntersection(Scene* scene, Ray& ray);
 	// Returns a color given an intersection in the scene.
-	vec4 FindColor(Scene* scene, Intersection intersection, int recursiveCall);
+	vec3 FindColor(Scene* scene, Intersection intersection, int recursiveCall);
 	// Gets the color at a pos from the reflected light.
-	vec4 ColorFromReflections(Scene* scene, Ray reflectionRay, int recursiveCall);
+	vec3 ColorFromReflections(Scene* scene, Ray reflectionRay, int recursiveCall);
 	// Transforms a color in a vec4 to uint8_t* so that you can color the pixel.
-	void TransformColor(uint8_t* properColor, vec4 color);
+	void TransformColor(uint8_t* properColor, vec3 color);
 	// Colors each color channel in imagePixels given the pixel and color.
 	void ColorPixel(int pixel, const uint8_t* channels);
 };
