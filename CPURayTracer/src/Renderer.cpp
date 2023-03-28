@@ -4,7 +4,8 @@ Renderer::Renderer(Scene* scene, RenderingOptions options)
 {
 	m_scene = scene;
 	m_options = options;
-	m_imagePixels = new BYTE[3 * (options.ImageWidth * options.ImageHeight)];
+	m_numBytes = 3 * (options.ImageWidth * options.ImageHeight);
+	m_imagePixels = new BYTE[m_numBytes];
 }
 
 Renderer::~Renderer()
@@ -15,6 +16,15 @@ Renderer::~Renderer()
 
 void Renderer::RenderScene()
 {
+	// First update the camera fov in the x-direction by the world aspect ratio.
+	m_scene->getCamera()->setFOVx(m_options.ImageWidth, m_options.ImageHeight);
+
+	// Transform object if needed.
+	m_scene->TransformObjects();
+
+	RayTracer rayTracer(m_options.ImageWidth, m_options.ImageHeight);
+	rayTracer.TraceImage(m_scene);
+	memcpy(m_imagePixels, rayTracer.getImage(), m_numBytes);
 }
 
 void Renderer::SaveImage()

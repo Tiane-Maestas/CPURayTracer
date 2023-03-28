@@ -18,8 +18,8 @@ typedef glm::vec4 vec4;
 
 struct RenderingOptions
 {
-	uint64_t ImageWidth = 640;
-	uint64_t ImageHeight = 480;
+	uint32_t ImageWidth = 640;
+	uint32_t ImageHeight = 480;
 	uint32_t MaxRayDepth = 5;
 	uint32_t RaysPerPixel = 5;
 	string OutputFileName = "RenderedImage.png";

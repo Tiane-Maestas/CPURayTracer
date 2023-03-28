@@ -2,9 +2,9 @@ size 640 480
 
 camera 0 0 4 0 0 0 0 1 0 30
 
-point 0 1 1 1 1 1
+point 0 1 1 1 1 1 0
 
-#directional 0 0 1 1 1 1 
+#directional 0 0 1 1 1 1 0
 
 ambient 0 0 0 
 emission 0 0 0
@@ -25,3 +25,4 @@ vertex -1 -1 0
 # Right hand rule for normal.
 tri 0 1 2
 tri 3 2 1
+mesh tri

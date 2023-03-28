@@ -4,5 +4,5 @@ vec3 Directional::attenuation = vec3(1, 0, 0); // Directional Lights don't have 
 
 void Light::Transform()
 {
-	pos = transf * pos;
+	m_pos = m_transf * m_pos;
 }

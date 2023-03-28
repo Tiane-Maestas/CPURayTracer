@@ -1,25 +1,25 @@
 #include "../header/Camera.h"
 
-Camera::Camera(uint64_t eyex, uint64_t eyey, uint64_t eyez, uint64_t centerx, uint64_t centery, uint64_t centerz, uint64_t upx, uint64_t upy, uint64_t upz, uint64_t fovy)
+Camera::Camera(float eyex, float eyey, float eyez, float centerx, float centery, float centerz, float upx, float upy, float upz, uint32_t fovy)
 {
-	pos = vec4(eyex, eyey, eyez, 1);
-	center = vec4(centerx, centery, centerz, 1);
-	up = vec4(upx, upy, upz, 1);
-	fov = vec2(glm::radians((float)fovy), glm::radians((float)fovy));
+	m_pos = vec4(eyex, eyey, eyez, 1);
+	m_center = vec4(centerx, centery, centerz, 1);
+	m_up = vec4(upx, upy, upz, 1);
+	m_fov = vec2(glm::radians((float)fovy), glm::radians((float)fovy));
 }
 
-void Camera::SetFOVx(uint64_t imageWidth, uint64_t imageHeight)
+void Camera::setFOVx(float imageWidth, float imageHeight)
 {
-	fov.x = 2.0f * atan2(imageWidth * tan(fov.y / 2.0f), imageHeight);
+	m_fov.x = 2.0f * atan2(imageWidth * tan(m_fov.y / 2.0f), imageHeight);
 }
 
 void Camera::Transform()
 {
-	pos = transf * pos;
-	up = transf * up;
+	m_pos = m_transf * m_pos;
+	m_up = m_transf * m_up;
 }
 
 mat4 Camera::LookAt()
 {
-	return glm::lookAt(vec3(pos), vec3(center), vec3(up));
+	return glm::lookAt(vec3(m_pos), vec3(m_center), vec3(m_up));
 }

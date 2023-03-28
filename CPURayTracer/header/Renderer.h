@@ -14,5 +14,6 @@ public:
 private:
 	Scene* m_scene;
 	BYTE* m_imagePixels;
+	uint32_t m_numBytes;
 	RenderingOptions m_options;
 };

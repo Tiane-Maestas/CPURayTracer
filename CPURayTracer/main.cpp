@@ -8,10 +8,10 @@ int main(int argc, char* argv[])
 		exit(0);
 	}*/
 
-	const char* sceneFile = "testscenes/scene1.scene"; // "testscenes/scene4-specular.test" "testscenes/scene4.test"
+	const char* sceneFile = "testscenes/scene4-ambient.test"; // "testscenes/scene4-specular.test" "testscenes/scene4.test"
 
 	CustomSceneBuilder sceneBuilder;
-	Scene* scene = sceneBuilder.buildFromFile(sceneFile);
+	Scene* scene = sceneBuilder.BuildFromFile(sceneFile);
 	
 	Renderer renderer(scene, sceneBuilder.GetOptions());
 	renderer.RenderScene();

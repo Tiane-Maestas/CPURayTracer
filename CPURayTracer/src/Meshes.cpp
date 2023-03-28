@@ -2,24 +2,26 @@
 
 Triangle::Triangle(vec4 a, vec4 b, vec4 c)
 {
-	this->a = a; this->b = b; this->c = c;
-	normal = vec4(cross(vec3(b) - vec3(a), vec3(c) - vec3(a)), 1); // Right hand rule definition.
-	normal = normalize(normal);
+	m_a = a; m_b = b; m_c = c;
+	m_normal = vec4(cross(vec3(b - a), vec3(c - a)), 1); // Right hand rule definition.
+	m_normal = normalize(m_normal);
 }
 
 void Triangle::Transform(const mat4& transf)
 {
-	a = transf * a; b = transf * b; c = transf * c;
-	aNorm = transpose(inverse(transf)) * aNorm;
-	bNorm = transpose(inverse(transf)) * bNorm;
-	cNorm = transpose(inverse(transf)) * cNorm;
-	normal = transpose(inverse(transf)) * normal;
+	m_a = transf * m_a; m_b = transf * m_b; m_c = transf * m_c;
+	m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 1);
+	m_normal = normalize(m_normal);
+	/*m_aNorm = transpose(inverse(transf)) * m_aNorm;
+	m_bNorm = transpose(inverse(transf)) * m_bNorm;
+	m_cNorm = transpose(inverse(transf)) * m_cNorm;
+	m_normal = transpose(inverse(transf)) * m_normal;*/
 }
 
 vec4 Triangle::getNormal(vec4 pos)
 {
-	if (aNorm == vec4(0.0)) { // If 1 of the vertex normals are 0 then use flat normal.
-		return normal;
+	if (m_aNorm == vec4(0.0)) { // If 1 of the vertex normals are 0 then use flat normal.
+		return m_normal;
 	}
 	// TODO: Add interpolation of normals for smooth shading.
 	return vec4(0.0);
@@ -27,32 +29,32 @@ vec4 Triangle::getNormal(vec4 pos)
 
 vec4 Mesh::getNormal(int id, vec4 pos)
 {
-	return triangles[id].getNormal(pos);
+	return m_triangles[id].getNormal(pos);
 }
 
 void Mesh::Transform()
 {
-	pos = transf * pos;
-	for (Triangle tri : triangles) 
+	m_pos = m_transf * m_pos;
+	for (Triangle tri : m_triangles)
 	{
-		tri.Transform(transf);
+		tri.Transform(m_transf);
 	}
 }
 
-vec4 Sphere::getNormal(vec4 pos)
+vec4 Sphere::getNormal(int id, vec4 pos)
 {
-	return normalize(pos - this->pos);
+	return normalize(pos - m_pos);
 }
 
 void Sphere::Transform()
 {
-	pos = transf * pos;
+	m_pos = m_transf * m_pos;
 }
 
-vec4 Ellipsoid::getNormal(vec4 pos)
+vec4 Ellipsoid::getNormal(int id, vec4 pos)
 {
-	pos = inverse(transf) * pos;
-	return transpose(inverse(transf)) * normalize(pos - this->pos);
+	pos = inverse(m_transf) * pos;
+	return transpose(inverse(m_transf)) * normalize(pos - m_pos);
 }
 
 void Ellipsoid::Transform()
