@@ -3,6 +3,7 @@ maxdepth 5
 camera 0 0 20 0 0 -1 0 1 0 45
 output Dragon.png
 
+directional 0 1 -1 1 1 1
 point 0 20 20 1 1 1
 
 # Stanford Dragon
@@ -150022,14 +150023,14 @@ mesh Dragon
 # Ground
 ambient 0.0 0.0 0.0
 emission 0.0 0.0 0.0
-diffuse 0.1 0.1 0.1
+diffuse 0.0 0.0 0.0
 specular 0.8 0.8 1.0
 shininess 20
 
-vertex 10 10 -3.1513
-vertex -10 10 -3.1513
-vertex 10 -10 -3.1513
-vertex -10 -10 -3.1513
+vertex 20 -1 -20
+vertex -20 -1 -20
+vertex 20 -1 20
+vertex -20 -1 20
 tri 50001 50002 50004
-tri 50002 50003 50004
-mesh ground
+tri 50004 50003 50001
+mesh Ground
