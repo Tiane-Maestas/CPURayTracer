@@ -1,18 +1,16 @@
-#Stanford Dragon
-
 size 640 480
-camera 0 0 20 0 0 -1 0 1 0 45
-output scene7.png
-
-diffuse 0.4 0.1 0.1
-ambient 0.0 0.0 0.0
-point 0 20 20 1 1 1
-shininess 20
-specular 0.3 0.3 0.3
-
 maxdepth 5
+camera 0 0 20 0 0 -1 0 1 0 45
+output Dragon.png
 
-maxverts 50001
+point 0 20 20 1 1 1
+
+# Stanford Dragon
+ambient 0.0 0.0 0.0
+emission 0.0 0.0 0.0
+diffuse 0.0 0.0 0.0
+specular 1.0 0.752941 0.796078
+shininess 20
 
 vertex 0 0 0
 vertex  1.6831 3.0852 -0.9792
@@ -150019,5 +150017,19 @@ tri 41343 32924 11324
 tri 41343 32922 32924 
 tri 29825 47438 29824 
 tri 29825 42257 47438 
+mesh Dragon
 
-popTransform
+# Ground
+ambient 0.0 0.0 0.0
+emission 0.0 0.0 0.0
+diffuse 0.1 0.1 0.1
+specular 0.8 0.8 1.0
+shininess 20
+
+vertex 10 10 -3.1513
+vertex -10 10 -3.1513
+vertex 10 -10 -3.1513
+vertex -10 -10 -3.1513
+tri 50001 50002 50004
+tri 50002 50003 50004
+mesh ground

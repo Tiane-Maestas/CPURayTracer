@@ -3,19 +3,19 @@
 Triangle::Triangle(vec4 a, vec4 b, vec4 c)
 {
 	m_a = a; m_b = b; m_c = c;
-	m_normal = vec4(cross(vec3(b - a), vec3(c - a)), 1); // Right hand rule definition.
+	m_normal = vec4(cross(vec3(b - a), vec3(c - a)), 0); // Right hand rule definition.
 	m_normal = normalize(m_normal);
 }
 
 void Triangle::Transform(const mat4& transf)
 {
 	m_a = transf * m_a; m_b = transf * m_b; m_c = transf * m_c;
-	/*m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 1);
-	m_normal = normalize(m_normal);*/
 	m_aNorm = transpose(inverse(transf)) * m_aNorm;
 	m_bNorm = transpose(inverse(transf)) * m_bNorm;
 	m_cNorm = transpose(inverse(transf)) * m_cNorm;
-	m_normal = transpose(inverse(transf)) * m_normal;
+	m_normal = normalize(transpose(inverse(transf)) * m_normal);
+	m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 0); // Right hand rule definition.
+	m_normal = normalize(m_normal);
 }
 
 vec4 Triangle::getNormal(vec4 pos)
@@ -54,7 +54,9 @@ void Sphere::Transform()
 vec4 Ellipsoid::getNormal(int id, vec4 pos)
 {
 	pos = inverse(m_transf) * pos;
-	return transpose(inverse(m_transf)) * normalize(pos - m_pos);
+	vec4 norm = transpose(inverse(m_transf)) * (pos - m_pos);
+	norm.w = 0; // Need homogenous coord. to be 0 or else normalize won't by 1 for vec3 in color.
+	return normalize(norm);
 }
 
 void Ellipsoid::Transform()

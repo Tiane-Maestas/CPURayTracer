@@ -302,7 +302,7 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 // Helper function for 'FindColor'
 vec3 ComputeColor(const vec4 direction, const vec4 normal, const vec4 halfvec, const vec3 color, const vec3 diffuse, const vec3 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
 {
-	float nDotL = dot(vec3(normal), vec3(direction));
+	float nDotL = dot(normal, direction);
 	vec3 lambert = diffuse * color * max(nDotL, 0.0f);
 
 	float nDotH = dot(normal, halfvec);
@@ -329,7 +329,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 		if (Directional* directional = dynamic_cast<Directional*>(light.get()))
 		{
 			vec4 direction = normalize(directional->getPosition());
-
+			
 			// Don't add light color if there is an object blocking it's view of the light. (Shadows)
 			Ray shadowRay(pos + 0.001f * direction, direction); // Account for shadow acne.
 			Intersection shadowIntersection = FindIntersection(scene, shadowRay);
