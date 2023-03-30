@@ -96,7 +96,7 @@ void MeshIntersectionTest(shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int
 				float gamma = dot(C, pos) - dot(C, b);
 				if (alpha >= 0 && beta >= 0 && gamma >= 0) // If true. Inside triangle.
 				{
-					if (length(pos - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+					if (length(vec4(pos, 1) - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check. Note: length uses dot product so dimensionality matters.
 					{
 						closestHit = vec4(pos, 1);
 						closestMesh = mesh;
@@ -127,10 +127,10 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 		{
 			float t = -0.5 * b / a;
 
-			vec3 pos = ray.At(t);
-			if (length(pos - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+			vec4 pos = ray.At(t);
+			if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 			{
-				closestHit = vec4(pos, 1);
+				closestHit = pos;
 				closestMesh = mesh;
 				closestTriangleId = 0;
 			}
@@ -144,10 +144,10 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 			{
 				t1 = min(t1, t2);
 
-				vec3 pos = ray.At(t1);
-				if (length(pos - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+				vec4 pos = ray.At(t1);
+				if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 				{
-					closestHit = vec4(pos, 1);
+					closestHit = pos;
 					closestMesh = mesh;
 					closestTriangleId = 0;
 				}
@@ -156,10 +156,10 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 			{
 				if (t2 > 0) 
 				{
-					vec3 pos = ray.At(t2);
-					if (length(pos - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+					vec4 pos = ray.At(t2);
+					if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 					{
-						closestHit = vec4(pos, 1);
+						closestHit = pos;
 						closestMesh = mesh;
 						closestTriangleId = 0;
 					}
@@ -169,10 +169,10 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 			{
 				if (t1 > 0) 
 				{
-					vec3 pos = ray.At(t1);
-					if (length(pos - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+					vec4 pos = ray.At(t1);
+					if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 					{
-						closestHit = vec4(pos, 1);
+						closestHit = pos;
 						closestMesh = mesh;
 						closestTriangleId = 0;
 					}
@@ -206,7 +206,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, 
 			// Transform ray hit back to world coordintes.
 			vec4 pos = ray.At(t);
 			pos = elp->getTransform() * pos;
-			if (length(vec3(pos) - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+			if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 			{
 				closestHit = pos;
 				closestMesh = mesh;
@@ -225,7 +225,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, 
 				// Transform ray hit back to world coordintes.
 				vec4 pos = ray.At(t1);
 				pos = elp->getTransform() * pos;
-				if (length(vec3(pos) - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+				if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 				{
 					closestHit = pos;
 					closestMesh = mesh;
@@ -239,7 +239,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, 
 					// Transform ray hit back to world coordintes.
 					vec4 pos = ray.At(t2);
 					pos = elp->getTransform() * pos;
-					if (length(vec3(pos) - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+					if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 					{
 						closestHit = pos;
 						closestMesh = mesh;
@@ -254,7 +254,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, 
 					// Transform ray hit back to world coordintes.
 					vec4 pos = ray.At(t1);
 					pos = elp->getTransform() * pos;
-					if (length(vec3(pos) - rayOrigin) < length(closestHit - ray.getPosition())) // Depth Check.
+					if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
 					{
 						closestHit = pos;
 						closestMesh = mesh;
@@ -343,7 +343,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 		{
 			vec4 toLight = point->getPosition() - pos;
 			vec4 direction = normalize(toLight); // Direction to light.
-
+			
 			// Don't add light color if there is an object blocking it's view of the light. (Shadows)
 			Ray shadowRay(pos + 0.001f * direction, direction); // Account for shadow acne.
 			Intersection shadowIntersection = FindIntersection(scene, shadowRay);

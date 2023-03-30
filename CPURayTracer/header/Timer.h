@@ -17,7 +17,7 @@ public:
 		stop();
 	}
 
-	long long stop()
+	void stop()
 	{
 		chrono::high_resolution_clock::time_point stopTime = chrono::high_resolution_clock::now();
 		long long duration = chrono::duration_cast<chrono::milliseconds>(stopTime - m_startTime).count();
