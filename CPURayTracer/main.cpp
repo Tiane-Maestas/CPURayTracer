@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 		exit(0);
 	}*/
 
-	const char* sceneFile = "testscenes/scene1.scene";
+	const char* sceneFile = "testscenes/scene2.scene";
 
 	CustomSceneBuilder sceneBuilder;
 	Scene* scene = sceneBuilder.BuildFromFile(sceneFile);

@@ -1,0 +1,98 @@
+size 1920 1080 
+maxdepth 4
+output scene2.png
+camera 6 1.5 6 0 0 0 0 1 0 30
+#directional 1 0 -1 1 1 1 
+#directional -1 0 1 1 1 1 
+point 3 3 3 1 1 1
+
+# Sphere
+diffuse 0 0 0 
+specular .7 .7 1
+shininess 25
+sph -1.5 0 -1.5 0.75
+
+# Ellipsoid
+diffuse 0.1 0.1 0.1 
+specular 1 .5 .7
+shininess 25
+pushTransform
+rotate 1 0 0 30
+scale 0.5 1.5 0.75
+translate 3.25 -1 -1.5
+elp 0 0 0 1
+popTransform
+
+# Make a Cube
+vertex -1 -1 -1
+vertex +1 -1 -1 
+vertex +1 +1 -1 
+vertex -1 +1 -1 
+vertex -1 -1 +1
+vertex +1 -1 +1 
+vertex +1 +1 +1
+vertex -1 +1 +1
+
+# Scale Cubes into Rectangular Prism as a surface.
+diffuse 0.1 0.1 0.1 
+specular .7 .7 1
+shininess 25
+pushTransform
+translate 0 -1 0
+scale 1.5 0.25 1.5
+tri 0 1 5 
+tri 0 5 4 
+tri 3 7 6
+tri 3 6 2
+tri 1 2 6
+tri 1 6 5 
+tri 0 7 3 
+tri 0 4 7 
+tri 0 3 2 
+tri 0 2 1
+tri 4 5 6 
+tri 4 6 7 
+mesh Ground
+popTransform
+
+diffuse 0.13 0.105 0.195
+specular 0.39 0.315 0.585
+shininess 10
+pushTransform
+translate 0 -2.25 0
+scale 4.5 0.25 4.5
+tri 0 1 5 
+tri 0 5 4 
+tri 3 7 6
+tri 3 6 2
+tri 1 2 6
+tri 1 6 5 
+tri 0 7 3 
+tri 0 4 7 
+tri 0 3 2 
+tri 0 2 1
+tri 4 5 6 
+tri 4 6 7 
+mesh Step
+popTransform
+
+diffuse 0.1 0.1 0.1 
+specular .7 .7 1
+shininess 25
+pushTransform
+translate -2 0 0
+scale 0.25 1.5 1.5
+tri 0 1 5 
+tri 0 5 4 
+tri 3 7 6
+tri 3 6 2
+tri 1 2 6
+tri 1 6 5 
+tri 0 7 3 
+tri 0 4 7 
+tri 0 3 2 
+tri 0 2 1
+tri 4 5 6 
+tri 4 6 7 
+mesh Wall
+popTransform
