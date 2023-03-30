@@ -2,15 +2,14 @@
 
 void Scene::TransformObjects()
 {
-	for (auto& mesh : m_meshes) 
+	for (auto& mesh : meshes) 
 	{
 		if (dynamic_cast<Ellipsoid*>(mesh.get())) continue; // Don't transform ellipsoids. Handled in renderer.
 		mesh->Transform();
 	}
-	for (auto& light : m_lights)
+	for (auto& light : lights)
 	{
-		if (dynamic_cast<Directional*>(light.get())) continue;
 		light->Transform();
 	}
-	m_camera.Transform();
+	camera.Transform();
 }

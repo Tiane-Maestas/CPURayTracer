@@ -1,6 +1,7 @@
 #pragma once
 #include <FreeImage.h>
 #include "RayTracer.h"
+#include "Timer.h"
 
 class Renderer 
 {

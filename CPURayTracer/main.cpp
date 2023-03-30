@@ -8,12 +8,15 @@ int main(int argc, char* argv[])
 		exit(0);
 	}*/
 
-	const char* sceneFile = "testscenes/Dragon.txt";
+	const char* sceneFile = "testscenes/scene1.scene";
 
 	CustomSceneBuilder sceneBuilder;
 	Scene* scene = sceneBuilder.BuildFromFile(sceneFile);
+	if (scene == nullptr) { exit(1); }
 	
 	Renderer renderer(scene, sceneBuilder.GetOptions());
 	renderer.RenderScene();
 	renderer.SaveImage();
+
+	RenderingStatistics::Print();
 }

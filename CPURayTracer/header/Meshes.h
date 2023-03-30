@@ -8,18 +8,18 @@ public:
 	Triangle(vec4 a, vec4 b, vec4 c);
 	~Triangle() {}
 	// Getters
-	vec4 getNormal(vec4 pos);
-	vec4 getFlatNormal() { return m_normal; }
+	vec3 getNormal(vec4 pos);
+	vec3 getFlatNormal() { return m_normal; }
 	vec4 A() { return m_a; }
 	vec4 B() { return m_b; }
 	vec4 C() { return m_c; }
 	// Setters
-	void setNormals(vec4 aNorm, vec4 bNorm, vec4 cNorm) { m_aNorm = aNorm; m_bNorm = bNorm; m_cNorm = cNorm; }
+	void setNormals(vec3 aNormal, vec3 bNormal, vec3 cNormal) { m_aNormal = aNormal; m_bNormal = bNormal; m_cNormal = cNormal; }
 	void Transform(const mat4& transf);
 private:
 	vec4 m_a = vec4(0.0), m_b = vec4(0.0), m_c = vec4(0.0); // Vertices
-	vec4 m_aNorm = vec4(0.0), m_bNorm = vec4(0.0), m_cNorm = vec4(0.0); // Normals
-	vec4 m_normal = vec4(0.0); // Plane Normal
+	vec3 m_aNormal = vec3(0.0), m_bNormal = vec3(0.0), m_cNormal = vec3(0.0); // Vertex Normals
+	vec3 m_normal = vec3(0.0); // Plane Normal
 };
 
 class Mesh 
@@ -29,10 +29,11 @@ public:
 	Mesh(vec4 pos, string name) { m_name = name; m_pos = pos; }
 	virtual ~Mesh() {}
 	// Getters
+	string getName() { return m_name; }
 	vec4 getPosition() { return m_pos; }
 	mat4 getTransform() { return m_transf; }
 	Material getMaterial() { return m_material; }
-	virtual vec4 getNormal(int id, vec4 pos); // Assumes position is passed in with world coordinates.
+	virtual vec3 getNormal(int id, vec4 pos); // Assumes position is passed in with world coordinates.
 	vector<Triangle> getTriangles() { return m_triangles; }
 	// Setters
 	void UpdateTransform(mat4 transf) { m_transf = transf; }
@@ -56,7 +57,7 @@ public:
 	Sphere(vec4 pos, float r) : Mesh(pos, "Sphere") { m_radius = r; }
 	~Sphere(){}
 	float getRadius() { return m_radius; }
-	vec4 getNormal(int id, vec4 pos);
+	virtual vec3 getNormal(int id, vec4 pos);
 	void Transform();
 protected:
 	float m_radius = 0;
@@ -69,6 +70,6 @@ public:
 	Ellipsoid(float x, float y, float z, float r) : Sphere(x, y, z, r) { m_name = "Ellipsoid"; }
 	Ellipsoid(vec4 pos, float r) : Sphere(pos, r) { m_name = "Ellipsoid"; }
 	~Ellipsoid() {}
-	vec4 getNormal(int id, vec4 pos);
+	virtual vec3 getNormal(int id, vec4 pos);
 	void Transform();
 };

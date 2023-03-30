@@ -50,18 +50,17 @@ void RayTracer::TraceImage(Scene* scene)
 
 Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
 {
-	Camera* camera = scene->getCamera();
 	float a = x - (m_imageWidth / 2);
 	float b = y - (m_imageHeight / 2);
-	float alpha = tan(camera->getFOV().x / 2) * (a / (m_imageWidth / 2));
-	float beta = tan(camera->getFOV().y / 2) * (b / (m_imageHeight / 2));
-	vec3 w = normalize(camera->getPosition() - camera->getLookingAt());
-	vec3 u = normalize(cross(vec3(camera->getUp()), w));
+	float alpha = tan(scene->camera.getFOV().x / 2) * (a / (m_imageWidth / 2));
+	float beta = tan(scene->camera.getFOV().y / 2) * (b / (m_imageHeight / 2));
+	vec3 w = normalize(scene->camera.getPosition() - scene->camera.getLookingAt());
+	vec3 u = normalize(cross(vec3(scene->camera.getUp()), w));
 	vec3 v = normalize(cross(w, u));
 
 	vec3 dir = alpha * u + beta * v - w;
 	dir = normalize(dir);
-	return Ray(camera->getPosition(), dir);
+	return Ray(scene->camera.getPosition(), dir);
 }
 
 // ---Start of Intersection Section---
@@ -278,12 +277,12 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 	int closestTriangleId = 0;
 
 	// For each mesh in the scene see if the ray intersects it.
-	for (shared_ptr<Mesh> mesh : *scene->getMeshes()) 
+	for (shared_ptr<Mesh> mesh : scene->meshes) 
 	{
 		// Note: Make sure these checks follow inheritance.
-		if (Ellipsoid* sph = dynamic_cast<Ellipsoid*>(mesh.get()))
+		if (Ellipsoid* elp = dynamic_cast<Ellipsoid*>(mesh.get()))
 		{
-			EllipsoidIntersectionTest(sph, mesh, ray, closestHit, closestTriangleId, closestMesh);
+			EllipsoidIntersectionTest(elp, mesh, ray, closestHit, closestTriangleId, closestMesh);
 		}
 		else if (Sphere* sph = dynamic_cast<Sphere*>(mesh.get())) 
 		{
@@ -300,7 +299,7 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 // ---End of Intersection Section---
 
 // Helper function for 'FindColor'
-vec3 ComputeColor(const vec4 direction, const vec4 normal, const vec4 halfvec, const vec3 color, const vec3 diffuse, const vec3 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
+vec3 ComputeColor(const vec3 direction, const vec3 normal, const vec3 halfvec, const vec3 color, const vec3 diffuse, const vec3 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
 {
 	float nDotL = dot(normal, direction);
 	vec3 lambert = diffuse * color * max(nDotL, 0.0f);
@@ -319,13 +318,14 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 
 	Material hitMaterial = intersection.hitMesh.get()->getMaterial();
 	vec4 pos = intersection.hitPos;
-	vec4 normal = intersection.hitMesh.get()->getNormal(intersection.triangleId, pos);
+	vec3 normal = intersection.hitMesh.get()->getNormal(intersection.triangleId, pos);
 
 	vec3 currentColor = hitMaterial.ambient + hitMaterial.emission;
 
 	// Add color from the lights.
 	vec4 towardsRayOrigin = normalize(intersection.ray.getPosition() - pos); // Vector to origin of ray cast. Needed for half vector.
-	for (shared_ptr<Light> light : *scene->getLights()) {
+	for (shared_ptr<Light> light : scene->lights) 
+	{
 		if (Directional* directional = dynamic_cast<Directional*>(light.get()))
 		{
 			vec4 direction = normalize(directional->getPosition());
@@ -336,7 +336,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 			if (shadowIntersection.hitMesh == nullptr) // Direction lights only have one check becuase they have no position.
 			{
 				vec4 half = normalize(direction + towardsRayOrigin); // The vector halfway between the ray origin and light.
-				currentColor += ComputeColor(direction, normal, half, directional->getColor(), hitMaterial.diffuse, hitMaterial.specular, hitMaterial.shininess, Directional::attenuation, 1.0f, 0.0f);
+				currentColor += ComputeColor(direction, normal, half, directional->color, hitMaterial.diffuse, hitMaterial.specular, hitMaterial.shininess, Directional::attenuation, 1.0f, 0.0f);
 			}
 		}
 		else if (Point* point = dynamic_cast<Point*>(light.get()))
@@ -351,7 +351,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 			if (shadowIntersection.hitMesh == nullptr || length(point->getPosition() - shadowRay.getPosition()) < length(shadowIntersection.hitPos - shadowRay.getPosition())) 
 			{
 				vec4 half = normalize(direction + towardsRayOrigin); // The vector halfway between the ray origin and light.
-				currentColor += ComputeColor(direction, normal, half, point->getColor(), hitMaterial.diffuse, hitMaterial.specular, hitMaterial.shininess, point->getAttenuation(), point->getIntensity(), length(toLight));
+				currentColor += ComputeColor(direction, normal, half, point->color, hitMaterial.diffuse, hitMaterial.specular, hitMaterial.shininess, point->attenuation, point->intensity, length(toLight));
 			}
 		}
 	}
@@ -359,8 +359,8 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 	// Add color from reflections.
 	if (hitMaterial.specular != vec3(0.0))
 	{
-		vec4 hitDir = intersection.ray.getDirection();
-		vec4 direction = normalize(hitDir - 2 * dot(hitDir, normal) * normal);
+		vec3 hitDir = intersection.ray.getDirection();
+		vec4 direction = vec4(normalize(hitDir - 2 * dot(hitDir, normal) * normal), 0);
 		Ray reflectionRay(pos + 0.01f * direction, direction);
 		currentColor += hitMaterial.specular * ColorFromReflections(scene, reflectionRay, recursiveCall);
 	}

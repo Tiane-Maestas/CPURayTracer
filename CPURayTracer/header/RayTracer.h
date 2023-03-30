@@ -17,8 +17,8 @@ private:
 struct Intersection
 {
 	Ray ray;
-	vec4 hitPos;
-	int triangleId;
+	const vec4 hitPos;
+	const int triangleId;
 	const shared_ptr<Mesh> hitMesh = nullptr;
 };
 

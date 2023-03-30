@@ -13,12 +13,14 @@ public:
 	// Getters
 	vec4 getPosition() { return m_pos; }
 	vec4 getLookingAt() { return m_center; }
-	vec4 getUp() { return m_up; }
+	vec3 getUp() { return m_up; }
 	vec2 getFOV() { return m_fov; }
 	// Setters
 	void UpdateTransform(mat4 transf) { m_transf = transf; }
+	void ChangeCenter(mat4 transf) { m_center = transf * m_center; }
 	void setFOVx(float imageWidth, float imageHeight); // This is so that the 'World Aspect Ratio' is always 1.
 	// This will transform camera position and up vector by its current transform.
+	// Note: The up vector transform hasn't been tested.
 	void Transform();
 	// Returns the transform of world space into camera 'eye' space.
 	mat4 LookAt();
@@ -26,6 +28,6 @@ private:
 	vec4 m_pos = vec4(0.0);
 	mat4 m_transf = mat4(1.0);
 	vec4 m_center = vec4(0.0);
-	vec4 m_up = vec4(0.0);
+	vec3 m_up = vec4(0.0);
 	vec2 m_fov = vec2(0.0);
 };

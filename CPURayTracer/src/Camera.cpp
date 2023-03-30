@@ -16,10 +16,10 @@ void Camera::setFOVx(float imageWidth, float imageHeight)
 void Camera::Transform()
 {
 	m_pos = m_transf * m_pos;
-	m_up = m_transf * m_up;
+	m_up = mat3(m_transf) * m_up; // May want to transform this like a normal.
 }
 
 mat4 Camera::LookAt()
 {
-	return glm::lookAt(vec3(m_pos), vec3(m_center), vec3(m_up));
+	return glm::lookAt(vec3(m_pos), vec3(m_center), m_up);
 }

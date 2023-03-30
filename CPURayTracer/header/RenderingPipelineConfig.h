@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <deque>
+#include <atomic>
 
 using namespace std;
 
@@ -25,3 +26,15 @@ struct RenderingOptions
 	string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
 };
+
+namespace RenderingStatistics
+{
+	static bool PrintTimers = true;
+	static atomic<int> numTriTests = 0;
+	static atomic<int> raysCasted = 0;
+
+	static void Print()
+	{
+		cout << "TODO - Statistics" << endl;
+	}
+}
