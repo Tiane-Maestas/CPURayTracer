@@ -32,6 +32,10 @@ class Directional : public Light
 {
 public:
 	static vec3 attenuation;
-	Directional(float x, float y, float z, float r, float g, float b) : Light(x, y, z, r, g, b) { m_pos = vec4(x, y, z, 0); } // Directional light w = 0.
+	Directional(float x, float y, float z, float r, float g, float b) : Light(x, y, z, r, g, b) 
+	{ 
+		m_pos = vec4(x, y, z, 0); // Directional light w = 0.
+		m_pos = normalize(m_pos); // Direction should always be normalized.
+	}
 	~Directional() {}
 };

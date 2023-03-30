@@ -14,8 +14,6 @@ void Triangle::Transform(const mat4& transf)
 	m_bNormal = transpose(inverse(mat3(transf))) * m_bNormal;
 	m_cNormal = transpose(inverse(mat3(transf))) * m_cNormal;
 	m_normal = normalize(transpose(inverse(mat3(transf))) * m_normal);
-	//m_normal = vec4(cross(vec3(m_b - m_a), vec3(m_c - m_a)), 0); // Right hand rule definition.
-	//m_normal = normalize(m_normal);
 }
 
 vec3 Triangle::getNormal(vec4 pos)
@@ -55,7 +53,6 @@ vec3 Ellipsoid::getNormal(int id, vec4 pos)
 {
 	pos = inverse(m_transf) * pos;
 	vec3 norm = transpose(inverse(mat3(m_transf))) * (pos - m_pos);
-	//norm.w = 0; // Need homogenous coord. to be 0 or else normalize won't by 1 for vec3 in color.
 	return normalize(norm);
 }
 
