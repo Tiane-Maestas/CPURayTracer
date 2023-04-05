@@ -1,6 +1,6 @@
 #include "../header/Renderer.h";
 
-Renderer::Renderer(Scene* scene, RenderingOptions options)
+Renderer::Renderer(std::shared_ptr<Scene> scene, RenderingOptions options)
 {
 	m_scene = scene;
 	m_options = options;
@@ -8,7 +8,7 @@ Renderer::Renderer(Scene* scene, RenderingOptions options)
 	m_imagePixels = new uint8_t[m_totNumBytes];
 
 	// Set number of threads to use.
-	m_numThreads = thread::hardware_concurrency();
+	m_numThreads = std::thread::hardware_concurrency();
 	if (options.NumberOfUsedThreads == Amount::None)
 	{
 		m_numThreads = 0;
@@ -23,54 +23,52 @@ Renderer::Renderer(Scene* scene, RenderingOptions options)
 	}
 
 	if(m_numThreads != 0)
-		m_blockSize = min(options.ImageWidth, options.ImageHeight) / (4 * m_numThreads); // Take the min in case of weird aspect ratios.
+		m_blockSize = std::min(options.ImageWidth, options.ImageHeight) / (4 * m_numThreads); // Take the min in case of weird aspect ratios.
 }
 
-Renderer::~Renderer()
+Renderer::~Renderer() 
 {
-	//delete m_imagePixels;
+	delete m_imagePixels;
 }
 
 void Renderer::RenderScene()
 {
 	// First update the camera fov in the x-direction by the world aspect ratio.
-	m_scene->camera.setFOVx(m_options.ImageWidth, m_options.ImageHeight);
+	m_scene->camera.setFOVx((float)m_options.ImageWidth, (float)m_options.ImageHeight);
 
 	// Transform object if needed.
 	m_scene->TransformObjects();
 
 	Timer traceImage("TraceImage");
 
-	if (m_numThreads == 0)
+	if (m_numThreads == 0) // Run on the main thread.
 	{
-		RayTracer rayTracer(m_options.ImageWidth, m_options.ImageHeight);
+		RayTracer rayTracer(m_imagePixels, (float)m_options.ImageWidth, (float)m_options.ImageHeight);
 		PixelBlock block{ 0, 0, m_options.ImageWidth, m_options.ImageHeight };
-		rayTracer.TraceImage(m_scene, block);
-		m_imageBlocks.push_back(rayTracer.getImage());
-		m_imagePixels = m_imageBlocks[0].get();
+		rayTracer.TraceImage(m_scene.get(), block);
 		return;
 	}
 
 	// Create a RayTracer for each thread.
-	vector<RayTracer> rayTracers;
-	for (int i = 0; i < m_numThreads; i++)
+	std::vector<RayTracer> rayTracers;
+	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
-		rayTracers.push_back(RayTracer(m_options.ImageWidth, m_options.ImageHeight));
+		rayTracers.push_back(RayTracer(m_imagePixels, (float)m_options.ImageWidth, (float)m_options.ImageHeight));
 	}
 
 	// Reserve a list of blocks for each thread.
-	vector<vector<PixelBlock>> blocksList(m_numThreads, vector<PixelBlock>());
+	std::vector<std::vector<PixelBlock>> blocksList(m_numThreads, std::vector<PixelBlock>());
 
 	// Populate the list of blocks.
-	int currThread = 0;
-	int xlimit, ylimit;
-	for (int y = 0; y < m_options.ImageHeight; y += m_blockSize)
+	uint32_t currThread = 0;
+	uint32_t xlimit, ylimit;
+	for (uint32_t y = 0; y < m_options.ImageHeight; y += m_blockSize)
 	{
 		// Correct for block size overflow.
 		ylimit = y + m_blockSize;
 		if (ylimit > m_options.ImageHeight) { ylimit = m_options.ImageHeight; }
 
-		for (int x = 0; x < m_options.ImageWidth; x += m_blockSize)
+		for (uint32_t x = 0; x < m_options.ImageWidth; x += m_blockSize)
 		{
 			// Correct for block size overflow.
 			xlimit = x + m_blockSize;
@@ -78,37 +76,25 @@ void Renderer::RenderScene()
 
 			PixelBlock currentBlock{ x, y, xlimit, ylimit };
 			blocksList[currThread].push_back(currentBlock);
+
+			// Split amongst threads.
 			currThread = (currThread < m_numThreads - 1) ? currThread + 1 : 0;
 		}
 	}
 
-	// Trace each list of blocks.
-	for (int i = 0; i < m_numThreads; i++)
+	// Trace each list of blocks on each RayTracer's thread.
+	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
-		rayTracers[i].TraceImage(m_scene, blocksList[i]);
+		rayTracers[i].TraceImage(m_scene.get(), blocksList[i]);
 	}
 
 	// Wait for each tracer to be done.
-	for (int i = 0; i < m_numThreads; i++)
+	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
 		while (rayTracers[i].isTracing())
 		{
 			// Do Nothing
-		}
-		m_imageBlocks.push_back(rayTracers[i].getImage());
-	}
-	
-	ConstructPixelsFromBlocks();
-}
-
-void Renderer::ConstructPixelsFromBlocks() 
-{
-	m_imagePixels = m_imageBlocks[0].get();
-	for (int i = 1; i < m_imageBlocks.size(); i++)
-	{
-		for (int j = 0; j < m_totNumBytes; j++)
-		{
-			m_imagePixels[j] += m_imageBlocks[i].get()[j];
+			std::cout << "";
 		}
 	}
 }
@@ -117,5 +103,5 @@ void Renderer::SaveImage()
 {
 	FIBITMAP* img = FreeImage_ConvertFromRawBits(m_imagePixels, m_options.ImageWidth, m_options.ImageHeight, 3 * m_options.ImageWidth, 24, 0xFF0000, 0x00FF00, 0x0000FF, false); // If false then bottom left orign.
 	FreeImage_Save(FIF_PNG, img, m_options.OutputFileName.c_str(), 0);
-	cout << "Image Saved: " << m_options.OutputFileName << endl;
+	std::cout << "Image Saved: " << m_options.OutputFileName << std::endl;
 }

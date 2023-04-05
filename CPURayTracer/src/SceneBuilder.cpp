@@ -1,27 +1,27 @@
 #include "../header/SceneBuilder.h"
 
-bool CustomSceneBuilder::ReadCommandParameters(stringstream& cmdParams, const int numparams, float* parameters)
+bool CustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, const int numparams, float* parameters)
 {
     for (int i = 0; i < numparams; i++) {
         cmdParams >> parameters[i];
         if (cmdParams.fail()) {
-            cout << "Failed reading value: " << cmdParams.str() << "\n";
+            std::cout << "Failed reading value: " << cmdParams.str() << "\n";
             return false;
         }
     }
     return true;
 }
 
-Scene* CustomSceneBuilder::BuildFromFile(const char* filename) 
+std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
 {
-    Scene* scene = new Scene();
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
-    ifstream scenefile;
+    std::ifstream scenefile;
     scenefile.open(filename);
     if (scenefile.is_open()) {
 
         // Matrix Stack for object transforms.
-        stack<mat4> transfstack;
+        std::stack<mat4> transfstack;
         transfstack.push(mat4(1.0));  // identity
 
         // Current Scene Object Properties.
@@ -33,13 +33,13 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
 
         float attenuation[3] = { 1, 0, 0 }; // No attenuation by default.
 
-        string line, cmd;
+        std::string line, cmd;
         std::getline(scenefile, line);
         while (scenefile) {
             // Exclude Comments and Blank Lines.
-            if ((line.find_first_not_of(" \t\r\n") != string::npos) && (line[0] != '#')) 
+            if ((line.find_first_not_of(" \t\r\n") != std::string::npos) && (line[0] != '#'))
             {
-                stringstream cmdParams(line);
+                std::stringstream cmdParams(line);
                 cmdParams >> cmd;
                 float params[10]; // At most 10 parameters in a command.
 
@@ -77,17 +77,16 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 4, params); // pos, radius 
                     if (validinput) 
                     {
-                        shared_ptr<Sphere> sph = make_unique<Sphere>(params[0], params[1], params[2], params[3]);
-                        Material mat;
+                        std::shared_ptr<Sphere> sph = std::make_unique<Sphere>(params[0], params[1], params[2], params[3]);
+                        sph->material = Material();
                         for (int i = 0; i < 3; i++) 
                         {
-                            mat.ambient[i] = currAmbient[i];
-                            mat.diffuse[i] = currDiffuse[i];
-                            mat.specular[i] = currSpecular[i];
-                            mat.emission[i] = currEmission[i];
+                            sph->material.ambient[i] = currAmbient[i];
+                            sph->material.diffuse[i] = currDiffuse[i];
+                            sph->material.specular[i] = currSpecular[i];
+                            sph->material.emission[i] = currEmission[i];
                         }
-                        mat.shininess = currShininess;
-                        sph->setMaterial(mat);
+                        sph->material.shininess = currShininess;
                         sph->UpdateTransform(transfstack.top());
 
                         scene->meshes.push_back(sph);
@@ -98,17 +97,16 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 4, params); // pos, radius 
                     if (validinput) 
                     {
-                        shared_ptr<Ellipsoid> elp = make_unique<Ellipsoid>(params[0], params[1], params[2], params[3]);
-                        Material mat;
+                        std::shared_ptr<Ellipsoid> elp = std::make_unique<Ellipsoid>(params[0], params[1], params[2], params[3]);
+                        elp->material = Material();
                         for (int i = 0; i < 3; i++) 
                         {
-                            mat.ambient[i] = currAmbient[i];
-                            mat.diffuse[i] = currDiffuse[i];
-                            mat.specular[i] = currSpecular[i];
-                            mat.emission[i] = currEmission[i];
+                            elp->material.ambient[i] = currAmbient[i];
+                            elp->material.diffuse[i] = currDiffuse[i];
+                            elp->material.specular[i] = currSpecular[i];
+                            elp->material.emission[i] = currEmission[i];
                         }
-                        mat.shininess = currShininess;
-                        elp->setMaterial(mat);
+                        elp->material.shininess = currShininess;
                         elp->UpdateTransform(transfstack.top());
 
                         scene->meshes.push_back(elp);
@@ -119,7 +117,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 3, params); // pos 
                     if (validinput) 
                     {
-                        m_vertices.push_back(pair<vec4,vec3>(vec4(params[0], params[1], params[2], 1), vec3(0.0)));
+                        m_vertices.push_back(std::pair<vec4,vec3>(vec4(params[0], params[1], params[2], 1), vec3(0.0)));
                     }
                 }
                 else if (cmd == "vertexnormal") // Store Vertex w/ Normal.
@@ -129,7 +127,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     {
                         vec4 vert(params[0], params[1], params[2], 1);
                         vec3 norm(params[3], params[4], params[5]);
-                        m_vertices.push_back(pair<vec4, vec3>(vert, norm));
+                        m_vertices.push_back(std::pair<vec4, vec3>(vert, norm));
                     }
                 }
                 else if (cmd == "tri") // Store Triangle.
@@ -146,20 +144,21 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                 {
                     if (m_currentTriangles.size() > 0) 
                     {
-                        string name; cmdParams >> name;
-                        shared_ptr<Mesh> mesh = make_unique<Mesh>(0, 0, 0, name);
-                        mesh->addTriangles(m_currentTriangles);
+                        std::string name; cmdParams >> name;
+                        std::shared_ptr<Mesh> mesh = std::make_unique<Mesh>(0, 0, 0, name);
+                        mesh->triangles = std::vector<Triangle>(m_currentTriangles);
                         m_currentTriangles.clear(); // Clear triangles for next mesh.
-                        Material mat;
+
+                        mesh->material = Material();
                         for (int i = 0; i < 3; i++) 
                         {
-                            mat.ambient[i] = currAmbient[i];
-                            mat.diffuse[i] = currDiffuse[i];
-                            mat.specular[i] = currSpecular[i];
-                            mat.emission[i] = currEmission[i];
+                            mesh->material.ambient[i] = currAmbient[i];
+                            mesh->material.diffuse[i] = currDiffuse[i];
+                            mesh->material.specular[i] = currSpecular[i];
+                            mesh->material.emission[i] = currEmission[i];
                         }
-                        mat.shininess = currShininess;
-                        mesh->setMaterial(mat);
+                        mesh->material.shininess = currShininess;
+
                         mesh->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(mesh);
                     }
@@ -169,7 +168,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) 
                     {
-                        shared_ptr<Directional> light = make_unique<Directional>(params[0], params[1], params[2], params[3], params[4], params[5]);
+                        std::shared_ptr<Directional> light = std::make_unique<Directional>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         scene->lights.push_back(light);
                     }
@@ -179,7 +178,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) 
                     {
-                        shared_ptr<Point> light = make_unique<Point>(params[0], params[1], params[2], params[3], params[4], params[5]);
+                        std::shared_ptr<Point> light = std::make_unique<Point>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         light->attenuation = vec3(attenuation[0], attenuation[1], attenuation[2]);
                         scene->lights.push_back(light);
@@ -283,7 +282,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                 {
                     if (transfstack.size() <= 1) 
                     {
-                        cerr << "Stack has no elements. Cannot Pop\n";
+                        std::cerr << "Stack has no elements. Cannot Pop\n";
                     }
                     else 
                     {
@@ -292,7 +291,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
                 }
                 else 
                 {
-                    cerr << "Unknown Command: " << cmd << " -> Skipped \n";
+                    std::cerr << "Unknown Command: " << cmd << " -> Skipped \n";
                 }
             }
             std::getline(scenefile, line);
@@ -300,7 +299,7 @@ Scene* CustomSceneBuilder::BuildFromFile(const char* filename)
     }
     else 
     {
-        cerr << "Unable to Open Input Scene File " << filename << endl;
+        std::cerr << "Unable to Open Input Scene File " << filename << std::endl;
         return nullptr;
     }
     return scene;

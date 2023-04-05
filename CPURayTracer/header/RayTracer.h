@@ -20,7 +20,7 @@ struct Intersection
 	Ray ray;
 	const vec4 hitPos;
 	const int triangleId;
-	const shared_ptr<Mesh> hitMesh = nullptr;
+	const std::shared_ptr<Mesh> hitMesh = nullptr;
 };
 
 struct PixelBlock 
@@ -31,14 +31,14 @@ struct PixelBlock
 	uint32_t yMax;
 };
 
-class RayTracer {
+class RayTracer 
+{
 public:
-	RayTracer(float width, float height);
+	// The 'RayTracer' will directly write to 'imagePixels'.
+	RayTracer(uint8_t* imagePixels, float width, float height);
 	~RayTracer() {}
 	// Getters
 	bool isTracing() { return m_status; }
-	PixelBlock getCurrentBlock() { return m_currentBlock; }
-	shared_ptr<uint8_t[]> getImage() { return m_imagePixels; }
 	// Setters
 	void setDefaultColor(vec4 defaultColor) { m_defaultColor = defaultColor; }
 	void setRayDepth(int maxRayDepth) { m_maxRayDepth = maxRayDepth; }
@@ -46,25 +46,23 @@ public:
 	// Constructs a byte array in 'm_imagePixels' as the traced image on the main thread.
 	void TraceImage(Scene* scene, PixelBlock block);
 	// Constructs a byte array in 'm_imagePixels' as the traced image on a seperate thread.
-	void TraceImage(Scene* scene, vector<PixelBlock> blocks);
+	void TraceImage(Scene* scene, std::vector<PixelBlock> blocks);
 		
 private:
 	// Threading
 	bool m_status = false;
-	shared_ptr<mutex> m_mutex;
-	PixelBlock m_currentBlock;
-	shared_ptr<thread> m_thread;
+	std::shared_ptr<std::thread> m_thread;
 	
 	// Image Properties
+	uint8_t* m_imagePixels;
 	float m_imageWidth = 120;
 	float m_imageHeight = 120;
 	vec3 m_defaultColor = vec3(0.0);
-	shared_ptr<uint8_t[]> m_imagePixels;
 	// Ray Tracer Properties
 	int m_maxRayDepth = 5;
 	int m_raysPerPixel = 1;
 	// This will construct the 'm_imagePixels' from a seperate thread and a list of blocks.
-	void TraceThreadedImage(Scene* scene, vector<PixelBlock> blocks);
+	void TraceThreadedImage(Scene* scene, std::vector<PixelBlock> blocks);
 	// Builds a Ray given the scene's camera and the x and y pixel of the image.
 	Ray RayThroughPixel(Scene* scene, float x, float y);
 	// Returns the Paramater 't' that tells where the given ray hits the scene.

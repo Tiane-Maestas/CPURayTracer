@@ -12,20 +12,19 @@ void Ray::transform(mat4 transf)
 	m_dir = transf * m_dir;
 }
 
-RayTracer::RayTracer(float width, float height)
+RayTracer::RayTracer(uint8_t* imagePixels, float width, float height)
 {
-	m_imagePixels = make_unique<uint8_t[]>(3 * (width * height));
+	m_imagePixels = imagePixels;
 	m_imageWidth = width;
 	m_imageHeight = height;
-	m_mutex = make_unique<mutex>();
 }
 
 // ---Main Logic Loop---
 void RayTracer::TraceImage(Scene* scene, PixelBlock block)
 {
-	bool changeStatus = (!m_status) ? true : false; // If called from thread start dont change status.
+	bool changeStatus = (!m_status) ? true : false; // If called from thread start don't change status.
 	m_status = true;
-	m_currentBlock = block;
+
 	int pixel = 3 * (block.xMin + (block.yMin * m_imageWidth));
 	for (int y = block.yMin; y < block.yMax; y++)
 	{
@@ -47,16 +46,15 @@ void RayTracer::TraceImage(Scene* scene, PixelBlock block)
 		m_status = false;
 }
 
-void RayTracer::TraceImage(Scene* scene, vector<PixelBlock> blocks)
+void RayTracer::TraceImage(Scene* scene, std::vector<PixelBlock> blocks)
 {
 	m_status = true;
-	m_thread = make_shared<thread>(&RayTracer::TraceThreadedImage, this, scene, blocks); //thread(&RayTracer::TraceThreadedImage, this, scene, blocks);
+	m_thread = std::make_shared<std::thread>(&RayTracer::TraceThreadedImage, this, scene, blocks);
 	m_thread->detach();
 }
 
-void RayTracer::TraceThreadedImage(Scene* scene, vector<PixelBlock> blocks)
+void RayTracer::TraceThreadedImage(Scene* scene, std::vector<PixelBlock> blocks)
 {
-	int i = 0;
 	for (PixelBlock block : blocks) 
 	{
 		TraceImage(scene, block);
@@ -80,13 +78,13 @@ Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
 }
 
 // ---Start of Intersection Section---
-void MeshIntersectionTest(shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, shared_ptr<Mesh>& closestMesh)
+void MeshIntersectionTest(std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, std::shared_ptr<Mesh>& closestMesh)
 {
 	vec3 rayOrigin = ray.getPosition();
 	vec3 rayDir = ray.getDirection();
 	int index = 0;
 	// Check if intersect any of its triangles.
-	for (Triangle tri : mesh->getTriangles()) 
+	for (Triangle tri : mesh->triangles)
 	{
 		vec3 normal = tri.getFlatNormal();
 		float denominator = dot(rayDir, normal);
@@ -125,7 +123,7 @@ void MeshIntersectionTest(shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int
 	}
 }
 
-void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, shared_ptr<Mesh>& closestMesh)
+void SphereIntersectionTest(Sphere* sph, std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, std::shared_ptr<Mesh>& closestMesh)
 {
 	vec3 rayOrigin = ray.getPosition();
 	vec3 rayDir = ray.getDirection();
@@ -158,7 +156,7 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 			float t2 = c / q;
 			if (t1 > 0 && t2 > 0) // Hit sphere in two places.
 			{
-				t1 = min(t1, t2);
+				t1 = std::min(t1, t2);
 
 				vec4 pos = ray.At(t1);
 				if (length(pos - ray.getPosition()) < length(closestHit - ray.getPosition())) // Depth Check.
@@ -198,7 +196,7 @@ void SphereIntersectionTest(Sphere* sph, shared_ptr<Mesh> mesh, Ray& ray, vec4& 
 	}
 }
 
-void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, shared_ptr<Mesh>& closestMesh)
+void EllipsoidIntersectionTest(Ellipsoid* elp, std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, std::shared_ptr<Mesh>& closestMesh)
 {
 	// Transform ray since ellipsoid's aren't transformed in scene.
 	ray.transform(inverse(elp->getTransform()));
@@ -236,7 +234,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, shared_ptr<Mesh> mesh, Ray& ray, 
 			float t2 = c / q;
 			if (t1 > 0 && t2 > 0) // Hit sphere in two places.
 			{
-				t1 = min(t1, t2);
+				t1 = std::min(t1, t2);
 
 				// Transform ray hit back to world coordintes.
 				vec4 pos = ray.At(t1);
@@ -289,11 +287,11 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 {
 	// These are for distance checks.
 	vec4 closestHit(FLT_MAX);
-	shared_ptr<Mesh> closestMesh = nullptr;
+	std::shared_ptr<Mesh> closestMesh = nullptr;
 	int closestTriangleId = 0;
 
 	// For each mesh in the scene see if the ray intersects it.
-	for (shared_ptr<Mesh> mesh : scene->meshes) 
+	for (std::shared_ptr<Mesh> mesh : scene->meshes)
 	{
 		// Note: Make sure these checks follow inheritance.
 		if (Ellipsoid* elp = dynamic_cast<Ellipsoid*>(mesh.get()))
@@ -318,10 +316,10 @@ Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 vec3 ComputeColor(const vec3 direction, const vec3 normal, const vec3 halfvec, const vec3 color, const vec3 diffuse, const vec3 specular, const float shininess, const vec3 attenuation, const float intensity, const float distance)
 {
 	float nDotL = dot(normal, direction);
-	vec3 lambert = diffuse * color * max(nDotL, 0.0f);
+	vec3 lambert = diffuse * color * std::max(nDotL, 0.0f);
 
 	float nDotH = dot(normal, halfvec);
-	vec3 phong = specular * color * pow(max(nDotH, 0.0f), shininess);
+	vec3 phong = specular * color * pow(std::max(nDotH, 0.0f), shininess);
 
 	float attenuate = intensity / (attenuation.x + attenuation.y * distance + attenuation.z * pow(distance, 2));
 
@@ -332,7 +330,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 {
 	if (intersection.hitMesh == nullptr) { return m_defaultColor; } // Return background if hit nothing.
 
-	Material hitMaterial = intersection.hitMesh.get()->getMaterial();
+	Material hitMaterial = intersection.hitMesh.get()->material;
 	vec4 pos = intersection.hitPos;
 	vec3 normal = intersection.hitMesh.get()->getNormal(intersection.triangleId, pos);
 
@@ -340,7 +338,7 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 
 	// Add color from the lights.
 	vec4 towardsRayOrigin = normalize(intersection.ray.getPosition() - pos); // Vector to origin of ray cast. Needed for half vector.
-	for (shared_ptr<Light> light : scene->lights) 
+	for (std::shared_ptr<Light> light : scene->lights)
 	{
 		if (Directional* directional = dynamic_cast<Directional*>(light.get()))
 		{
@@ -403,9 +401,7 @@ void RayTracer::TransformColor(uint8_t* properColor, vec3 color)
 
 void RayTracer::ColorPixel(int pixel, const uint8_t* channels)
 {
-	m_mutex->lock();
-	m_imagePixels.get()[pixel + 0] = channels[2]; // Blue
-	m_imagePixels.get()[pixel + 1] = channels[1]; // Green
-	m_imagePixels.get()[pixel + 2] = channels[0]; // Red
-	m_mutex->unlock();
+	m_imagePixels[pixel + 0] = channels[2]; // Blue
+	m_imagePixels[pixel + 1] = channels[1]; // Green
+	m_imagePixels[pixel + 2] = channels[0]; // Red
 }

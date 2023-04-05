@@ -27,13 +27,13 @@ vec3 Triangle::getNormal(vec4 pos)
 
 vec3 Mesh::getNormal(int id, vec4 pos)
 {
-	return m_triangles[id].getNormal(pos);
+	return triangles[id].getNormal(pos);
 }
 
 void Mesh::Transform()
 {
 	m_pos = m_transf * m_pos;
-	for (Triangle& tri : m_triangles)
+	for (Triangle& tri : triangles)
 	{
 		tri.Transform(m_transf);
 	}

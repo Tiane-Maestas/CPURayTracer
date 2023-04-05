@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	const char* sceneFile = "testscenes/scene2.scene";
 
 	CustomSceneBuilder sceneBuilder;
-	Scene* scene = sceneBuilder.BuildFromFile(sceneFile);
+	std::shared_ptr<Scene> scene = sceneBuilder.BuildFromFile(sceneFile);
 	if (scene == nullptr) { exit(1); }
 	
 	Renderer renderer(scene, sceneBuilder.GetOptions());

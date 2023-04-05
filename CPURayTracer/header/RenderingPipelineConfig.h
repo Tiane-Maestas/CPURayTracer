@@ -7,8 +7,6 @@
 #include <mutex>
 #include <atomic>
 
-using namespace std;
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -33,18 +31,18 @@ struct RenderingOptions
 	uint32_t MaxRayDepth = 5;
 	uint32_t RaysPerPixel = 5;
 	Amount NumberOfUsedThreads = Amount::Maximum;
-	string OutputFileName = "RenderedImage.png";
+	std::string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
 };
 
 namespace RenderingStatistics
 {
 	static bool PrintTimers = true;
-	static atomic<int> numTriTests = 0;
-	static atomic<int> raysCasted = 0;
+	static std::atomic<int> numTriTests = 0;
+	static std::atomic<int> raysCasted = 0;
 
 	static void Print()
 	{
-		cout << "TODO - Statistics" << endl;
+		std::cout << "TODO - Statistics" << std::endl;
 	}
 }

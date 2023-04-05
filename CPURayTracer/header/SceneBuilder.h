@@ -7,7 +7,7 @@
 class SceneBuilder 
 {
 public:
-	virtual Scene* BuildFromFile(const char* filename) = 0;
+	virtual std::shared_ptr<Scene> BuildFromFile(const char* filename) = 0;
 	RenderingOptions GetOptions() { return m_options; }
 protected:
 	RenderingOptions m_options;
@@ -16,11 +16,11 @@ protected:
 class CustomSceneBuilder : public SceneBuilder
 {
 public:
-	Scene* BuildFromFile(const char* filename);
+	std::shared_ptr<Scene> BuildFromFile(const char* filename);
 private:
 	// Parse a general command's paramaters into 'parameters'.
-	bool ReadCommandParameters(stringstream& cmdParams, const int numparams, float* parameters);
+	bool ReadCommandParameters(std::stringstream& cmdParams, const int numparams, float* parameters);
 	// Intermediate storage for constructing meshes. List of pairs between vertex and vertex normal.
-	vector<pair<vec4,vec3>> m_vertices;
-	vector<Triangle> m_currentTriangles;
+	std::vector<std::pair<vec4,vec3>> m_vertices;
+	std::vector<Triangle> m_currentTriangles;
 };

@@ -25,28 +25,25 @@ private:
 class Mesh 
 {
 public:
-	Mesh(float x, float y, float z, string name) { m_name = name; m_pos = vec4(x, y, z, 1); }
-	Mesh(vec4 pos, string name) { m_name = name; m_pos = pos; }
+	Mesh(float x, float y, float z, std::string name) { m_name = name; m_pos = vec4(x, y, z, 1); }
+	Mesh(vec4 pos, std::string name) { m_name = name; m_pos = pos; }
 	virtual ~Mesh() {}
+	// Core Properties.
+	Material material;
+	std::vector<Triangle> triangles;
 	// Getters
-	string getName() { return m_name; }
+	std::string getName() { return m_name; }
 	vec4 getPosition() { return m_pos; }
 	mat4 getTransform() { return m_transf; }
-	Material getMaterial() { return m_material; }
 	virtual vec3 getNormal(int id, vec4 pos); // Assumes position is passed in with world coordinates.
-	vector<Triangle> getTriangles() { return m_triangles; }
 	// Setters
 	void UpdateTransform(mat4 transf) { m_transf = transf; }
-	void setMaterial(Material material) { m_material = material; }
-	void addTriangles(vector<Triangle> triangles) { m_triangles = triangles; }
 	// This will transform mesh position and all triagnles by current 'transf'.
 	virtual void Transform();
 protected:
-	string m_name;
+	std::string m_name;
 	vec4 m_pos = vec4(0.0);
 	mat4 m_transf = mat4(1.0);
-	Material m_material;
-	vector<Triangle> m_triangles;
 };
 
 // Primitive Meshes Below.
