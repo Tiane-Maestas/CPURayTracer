@@ -14,25 +14,22 @@ void Ray::transform(mat4 transf)
 
 RayTracer::RayTracer(float width, float height)
 {
-	m_imagePixels = new uint8_t[3 * (width * height)];
+	m_imagePixels = make_unique<uint8_t[]>(3 * (width * height));
 	m_imageWidth = width;
 	m_imageHeight = height;
+	m_mutex = make_unique<mutex>();
 }
-
-RayTracer::~RayTracer()
-{
-	delete m_imagePixels;
-}
-
 
 // ---Main Logic Loop---
-void RayTracer::TraceImage(Scene* scene)
+void RayTracer::TraceImage(Scene* scene, PixelBlock block)
 {
-	int numPixels = m_imageHeight * m_imageWidth;
-	int pixel = 0;
-	for (int y = 0; y < m_imageHeight; y++)
+	bool changeStatus = (!m_status) ? true : false; // If called from thread start dont change status.
+	m_status = true;
+	m_currentBlock = block;
+	int pixel = 3 * (block.xMin + (block.yMin * m_imageWidth));
+	for (int y = block.yMin; y < block.yMax; y++)
 	{
-		for (int x = 0; x < m_imageWidth; x++)
+		for (int x = block.xMin; x < block.xMax; x++)
 		{
 			Ray ray = RayThroughPixel(scene, 0.5f + x, 0.5f + y);
 			Intersection intersection = FindIntersection(scene, ray);
@@ -44,8 +41,27 @@ void RayTracer::TraceImage(Scene* scene)
 			ColorPixel(pixel, color);
 			pixel += 3;
 		}
-		cout << "Image Percent: " << (float)(y * m_imageWidth) / (float)numPixels << endl;
+		pixel += 3 * (m_imageWidth - (block.xMax - block.xMin));
 	}
+	if (changeStatus)
+		m_status = false;
+}
+
+void RayTracer::TraceImage(Scene* scene, vector<PixelBlock> blocks)
+{
+	m_status = true;
+	m_thread = make_shared<thread>(&RayTracer::TraceThreadedImage, this, scene, blocks); //thread(&RayTracer::TraceThreadedImage, this, scene, blocks);
+	m_thread->detach();
+}
+
+void RayTracer::TraceThreadedImage(Scene* scene, vector<PixelBlock> blocks)
+{
+	int i = 0;
+	for (PixelBlock block : blocks) 
+	{
+		TraceImage(scene, block);
+	}
+	m_status = false;
 }
 
 Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
@@ -387,7 +403,9 @@ void RayTracer::TransformColor(uint8_t* properColor, vec3 color)
 
 void RayTracer::ColorPixel(int pixel, const uint8_t* channels)
 {
-	m_imagePixels[pixel + 0] = channels[2]; // Blue
-	m_imagePixels[pixel + 1] = channels[1]; // Green
-	m_imagePixels[pixel + 2] = channels[0]; // Red
+	m_mutex->lock();
+	m_imagePixels.get()[pixel + 0] = channels[2]; // Blue
+	m_imagePixels.get()[pixel + 1] = channels[1]; // Green
+	m_imagePixels.get()[pixel + 2] = channels[0]; // Red
+	m_mutex->unlock();
 }

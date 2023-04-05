@@ -3,6 +3,8 @@
 #include <vector>
 #include <stack>
 #include <deque>
+#include <thread>
+#include <mutex>
 #include <atomic>
 
 using namespace std;
@@ -17,12 +19,20 @@ typedef glm::vec2 vec2;
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
 
+enum Amount {
+	None,
+	Single,
+	Half,
+	Maximum
+};
+
 struct RenderingOptions
 {
 	uint32_t ImageWidth = 640;
 	uint32_t ImageHeight = 480;
 	uint32_t MaxRayDepth = 5;
 	uint32_t RaysPerPixel = 5;
+	Amount NumberOfUsedThreads = Amount::Maximum;
 	string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
 };

@@ -14,7 +14,12 @@ public:
 	void SaveImage();
 private:
 	Scene* m_scene;
-	BYTE* m_imagePixels;
-	uint32_t m_numBytes;
+	vector<shared_ptr<uint8_t[]>> m_imageBlocks;
+	uint8_t* m_imagePixels;
+	uint32_t m_totNumBytes;
 	RenderingOptions m_options;
+	uint32_t m_numThreads = 1;
+	uint32_t m_blockSize = 0;
+	// Combines all blocks into one array of pixels.
+	void ConstructPixelsFromBlocks();
 };
