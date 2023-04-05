@@ -1,5 +1,6 @@
 # CPURayTracer
 <img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/scene2.png'/>
+
 ## Current Features 
  - Full Triangle Meshes
  - Default Sphere, Ellipsoid Mesh
