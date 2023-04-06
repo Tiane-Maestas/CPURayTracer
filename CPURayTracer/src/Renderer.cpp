@@ -91,11 +91,7 @@ void Renderer::RenderScene()
 	// Wait for each tracer to be done.
 	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
-		while (rayTracers[i].isTracing())
-		{
-			// Do Nothing
-			std::cout << "";
-		}
+		rayTracers[i].join();
 	}
 }
 

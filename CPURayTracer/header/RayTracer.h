@@ -38,7 +38,7 @@ public:
 	RayTracer(uint8_t* imagePixels, float width, float height);
 	~RayTracer() {}
 	// Getters
-	bool isTracing() { return m_status; }
+	void join() { m_thread->join(); }
 	// Setters
 	void setDefaultColor(vec4 defaultColor) { m_defaultColor = defaultColor; }
 	void setRayDepth(int maxRayDepth) { m_maxRayDepth = maxRayDepth; }
@@ -50,9 +50,7 @@ public:
 		
 private:
 	// Threading
-	bool m_status = false;
 	std::shared_ptr<std::thread> m_thread;
-	
 	// Image Properties
 	uint8_t* m_imagePixels;
 	float m_imageWidth = 120;

@@ -22,9 +22,6 @@ RayTracer::RayTracer(uint8_t* imagePixels, float width, float height)
 // ---Main Logic Loop---
 void RayTracer::TraceImage(Scene* scene, PixelBlock block)
 {
-	bool changeStatus = (!m_status) ? true : false; // If called from thread start don't change status.
-	m_status = true;
-
 	int pixel = 3 * (block.xMin + (block.yMin * m_imageWidth));
 	for (int y = block.yMin; y < block.yMax; y++)
 	{
@@ -42,15 +39,11 @@ void RayTracer::TraceImage(Scene* scene, PixelBlock block)
 		}
 		pixel += 3 * (m_imageWidth - (block.xMax - block.xMin));
 	}
-	if (changeStatus)
-		m_status = false;
 }
 
 void RayTracer::TraceImage(Scene* scene, std::vector<PixelBlock> blocks)
 {
-	m_status = true;
 	m_thread = std::make_shared<std::thread>(&RayTracer::TraceThreadedImage, this, scene, blocks);
-	m_thread->detach();
 }
 
 void RayTracer::TraceThreadedImage(Scene* scene, std::vector<PixelBlock> blocks)
@@ -59,7 +52,6 @@ void RayTracer::TraceThreadedImage(Scene* scene, std::vector<PixelBlock> blocks)
 	{
 		TraceImage(scene, block);
 	}
-	m_status = false;
 }
 
 Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
