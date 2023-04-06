@@ -76,6 +76,7 @@ void Renderer::RenderScene()
 
 			PixelBlock currentBlock{ x, y, xlimit, ylimit };
 			blocksList[currThread].push_back(currentBlock);
+			ProgressReport::TotalBlocks++;
 
 			// Split amongst threads.
 			currThread = (currThread < m_numThreads - 1) ? currThread + 1 : 0;

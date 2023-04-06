@@ -51,6 +51,11 @@ void RayTracer::TraceThreadedImage(Scene* scene, std::vector<PixelBlock> blocks)
 	for (PixelBlock block : blocks) 
 	{
 		TraceImage(scene, block);
+		if (ProgressReport::ReportProgress) 
+		{
+			ProgressReport::RenderedBlocks++;
+			ProgressReport::Print();
+		}
 	}
 }
 
@@ -66,6 +71,7 @@ Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
 
 	vec3 dir = alpha * u + beta * v - w;
 	dir = normalize(dir);
+
 	return Ray(scene->camera.getPosition(), dir);
 }
 
@@ -78,6 +84,9 @@ void MeshIntersectionTest(std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit
 	// Check if intersect any of its triangles.
 	for (Triangle tri : mesh->triangles)
 	{
+		if (RenderingStatistics::SaveStatistics)
+			RenderingStatistics::NumTriTests++;
+
 		vec3 normal = tri.getFlatNormal();
 		float denominator = dot(rayDir, normal);
 		if (denominator != 0) // The ray hits the plane of the triangle if this isn't zero.
@@ -117,6 +126,9 @@ void MeshIntersectionTest(std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit
 
 void SphereIntersectionTest(Sphere* sph, std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, std::shared_ptr<Mesh>& closestMesh)
 {
+	if (RenderingStatistics::SaveStatistics)
+		RenderingStatistics::NumSphTests++;
+
 	vec3 rayOrigin = ray.getPosition();
 	vec3 rayDir = ray.getDirection();
 
@@ -190,6 +202,9 @@ void SphereIntersectionTest(Sphere* sph, std::shared_ptr<Mesh> mesh, Ray& ray, v
 
 void EllipsoidIntersectionTest(Ellipsoid* elp, std::shared_ptr<Mesh> mesh, Ray& ray, vec4& closestHit, int& closestTriangleId, std::shared_ptr<Mesh>& closestMesh)
 {
+	if (RenderingStatistics::SaveStatistics)
+		RenderingStatistics::NumElpTests++;
+
 	// Transform ray since ellipsoid's aren't transformed in scene.
 	ray.transform(inverse(elp->getTransform()));
 
@@ -277,6 +292,9 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, std::shared_ptr<Mesh> mesh, Ray& 
 
 Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
 {
+	if (RenderingStatistics::SaveStatistics)
+		RenderingStatistics::RaysCasted++;
+
 	// These are for distance checks.
 	vec4 closestHit(FLT_MAX);
 	std::shared_ptr<Mesh> closestMesh = nullptr;

@@ -38,11 +38,31 @@ struct RenderingOptions
 namespace RenderingStatistics
 {
 	static bool PrintTimers = true;
-	static std::atomic<int> numTriTests = 0;
-	static std::atomic<int> raysCasted = 0;
+	static bool SaveStatistics = false; // Significantly Impacts Performance.
+	extern std::atomic<uint64_t> RaysCasted;
+	extern std::atomic<uint64_t> NumTriTests;
+	extern std::atomic<uint64_t> NumSphTests;
+	extern std::atomic<uint64_t> NumElpTests;
 
-	static void Print()
+	inline void Print()
 	{
-		std::cout << "TODO - Statistics" << std::endl;
+		if (!SaveStatistics) return;
+		std::cout << "----- Statistics -----" << std::endl;
+		std::cout << "# Rays Casted: " << RaysCasted << std::endl;
+		std::cout << "# Tri Tests: " << NumTriTests << std::endl;
+		std::cout << "# Sph Tests: " << NumSphTests << std::endl;
+		std::cout << "# Elp Tests: " << NumElpTests << std::endl;
+	}
+}
+
+namespace ProgressReport
+{
+	static bool ReportProgress = false; // Significantly Impacts Performance.
+	extern std::atomic<uint64_t> TotalBlocks;
+	extern std::atomic<uint64_t> RenderedBlocks;
+
+	inline void Print() 
+	{
+		std::cout << "Image Percent: " << (float)(RenderedBlocks) / (float)TotalBlocks << std::endl;
 	}
 }
