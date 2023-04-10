@@ -6,7 +6,7 @@ vec4 Ray::At(float t)
 	return m_pos + t * m_dir;
 }
 
-void Ray::transform(mat4 transf)
+void Ray::transform(const mat4& transf)
 {
 	m_pos = transf * m_pos;
 	m_dir = transf * m_dir;

@@ -9,7 +9,7 @@ public:
 	vec4 getPosition() { return m_pos; }
 	vec4 getDirection() { return m_dir; }
 	vec4 At(float t);
-	void transform(mat4 transf);
+	void transform(const mat4& transf);
 private:
 	vec4 m_pos;
 	vec4 m_dir;

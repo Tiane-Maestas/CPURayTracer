@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 		exit(0);
 	}*/
 
-	const char* sceneFile = "testscenes/scene2.scene";
+	const char* sceneFile = "testscenes/scene2.scene"; // argv[1];
 
 	CustomSceneBuilder sceneBuilder;
 	std::shared_ptr<Scene> scene = sceneBuilder.BuildFromFile(sceneFile);
