@@ -8,8 +8,10 @@
  - Multiple Directional and/or Point Lights
  - Diffuse and Specular Materials
  - Specular Reflections
+ - Perfect Mirror Reflections
  - Custom Scene File Parser
 
 ## Acceleration
 <img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/Dragon.png'/>
+
  - Multithreading
