@@ -1,6 +1,5 @@
 #pragma once
-#include "RenderingPipelineConfig.h"
-#include "Materials.h"
+#include "RayTracerCore.h"
 
 class Triangle 
 {

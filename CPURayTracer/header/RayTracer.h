@@ -1,20 +1,6 @@
 #pragma once
 #include "Scene.h"
 
-class Ray 
-{
-public:
-	Ray(vec4 pos, vec3 dir) { m_pos = pos; m_dir = vec4(dir, 0); } // I want to make sure I force homogeneous coordinate to 0 for 'dir'.
-	~Ray() {}
-	vec4 getPosition() { return m_pos; }
-	vec4 getDirection() { return m_dir; }
-	vec4 At(float t);
-	void transform(const mat4& transf);
-private:
-	vec4 m_pos;
-	vec4 m_dir;
-};
-
 struct Intersection
 {
 	Ray ray;
@@ -25,10 +11,7 @@ struct Intersection
 
 struct PixelBlock 
 {
-	uint32_t xMin;
-	uint32_t yMin;
-	uint32_t xMax;
-	uint32_t yMax;
+	uint32_t xMin, yMin, xMax, yMax;
 };
 
 class RayTracer 
@@ -44,7 +27,7 @@ public:
 	void setRayDepth(int maxRayDepth) { m_maxRayDepth = maxRayDepth; }
 	void setRaysPerPixel(int raysPerPixel) { m_raysPerPixel = raysPerPixel; }
 	// Constructs a byte array in 'm_imagePixels' as the traced image on the main thread.
-	void TraceImage(Scene* scene, PixelBlock block);
+	void TraceImage(Scene* scene, const PixelBlock& block);
 	// Constructs a byte array in 'm_imagePixels' as the traced image on a seperate thread.
 	void TraceImage(Scene* scene, std::vector<PixelBlock> blocks);
 		

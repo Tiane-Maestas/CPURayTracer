@@ -161,6 +161,7 @@
     <ClCompile Include="src\Lights.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
     <ClCompile Include="src\RayTracer.cpp" />
+    <ClCompile Include="src\RayTracerCore.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\SceneBuilder.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="header\Materials.h" />
     <ClInclude Include="header\Meshes.h" />
     <ClInclude Include="header\RayTracer.h" />
+    <ClInclude Include="header\RayTracerCore.h" />
     <ClInclude Include="header\Renderer.h" />
     <ClInclude Include="header\Scene.h" />
     <ClInclude Include="header\SceneBuilder.h" />

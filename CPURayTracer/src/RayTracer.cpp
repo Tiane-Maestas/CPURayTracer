@@ -1,17 +1,5 @@
 #include "../header/RayTracer.h"
 
-vec4 Ray::At(float t)
-{
-	if (t == FLT_MAX) { return vec4(FLT_MAX); }
-	return m_pos + t * m_dir;
-}
-
-void Ray::transform(const mat4& transf)
-{
-	m_pos = transf * m_pos;
-	m_dir = transf * m_dir;
-}
-
 RayTracer::RayTracer(uint8_t* imagePixels, float width, float height)
 {
 	m_imagePixels = imagePixels;
@@ -20,7 +8,7 @@ RayTracer::RayTracer(uint8_t* imagePixels, float width, float height)
 }
 
 // ---Main Logic Loop---
-void RayTracer::TraceImage(Scene* scene, PixelBlock block)
+void RayTracer::TraceImage(Scene* scene, const PixelBlock& block)
 {
 	int pixel = 3 * (block.xMin + (block.yMin * m_imageWidth));
 	for (int y = block.yMin; y < block.yMax; y++)
@@ -206,7 +194,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, std::shared_ptr<Mesh> mesh, Ray& 
 		RenderingStatistics::NumElpTests++;
 
 	// Transform ray since ellipsoid's aren't transformed in scene.
-	ray.transform(inverse(elp->getTransform()));
+	ray.Transform(inverse(elp->getTransform()));
 
 	vec3 rayOrigin = ray.getPosition();
 	vec3 rayDir = ray.getDirection();
@@ -287,7 +275,7 @@ void EllipsoidIntersectionTest(Ellipsoid* elp, std::shared_ptr<Mesh> mesh, Ray& 
 	}
 
 	// Transform Ray Back so it is in world coordinates for next pass.
-	ray.transform(elp->getTransform());
+	ray.Transform(elp->getTransform());
 }
 
 Intersection RayTracer::FindIntersection(Scene* scene, Ray& ray)
@@ -343,6 +331,15 @@ vec3 RayTracer::FindColor(Scene* scene, Intersection intersection, int recursive
 	Material hitMaterial = intersection.hitMesh.get()->material;
 	vec4 pos = intersection.hitPos;
 	vec3 normal = intersection.hitMesh.get()->getNormal(intersection.triangleId, pos);
+
+	// Perfect Mirror reflections.
+	if (hitMaterial.type == MaterialType::Mirror)
+	{
+		vec3 hitDir = intersection.ray.getDirection();
+		vec4 direction = vec4(normalize(hitDir - 2 * dot(hitDir, normal) * normal), 0);
+		Ray reflectionRay(pos + 0.01f * direction, direction);
+		return hitMaterial.ambient * ColorFromReflections(scene, reflectionRay, recursiveCall);
+	}
 
 	vec3 currentColor = hitMaterial.ambient + hitMaterial.emission;
 

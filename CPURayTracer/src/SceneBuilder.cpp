@@ -31,6 +31,8 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
         float currEmission[3] = { 0, 0, 0 };
         float currShininess = 0;
 
+        MaterialType currMatType = MaterialType::Normal;
+
         float attenuation[3] = { 1, 0, 0 }; // No attenuation by default.
 
         std::string line, cmd;
@@ -87,6 +89,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                             sph->material.emission[i] = currEmission[i];
                         }
                         sph->material.shininess = currShininess;
+                        sph->material.type = currMatType;
                         sph->UpdateTransform(transfstack.top());
 
                         scene->meshes.push_back(sph);
@@ -107,6 +110,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                             elp->material.emission[i] = currEmission[i];
                         }
                         elp->material.shininess = currShininess;
+                        elp->material.type = currMatType;
                         elp->UpdateTransform(transfstack.top());
 
                         scene->meshes.push_back(elp);
@@ -158,6 +162,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                             mesh->material.emission[i] = currEmission[i];
                         }
                         mesh->material.shininess = currShininess;
+                        mesh->material.type = currMatType;
 
                         mesh->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(mesh);
@@ -245,6 +250,14 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     {
                         currShininess = params[0];
                     }
+                }
+                else if (cmd == "matType")
+                {
+                    std::string type; cmdParams >> type;
+                    if (type == "Mirror")
+                        currMatType = MaterialType::Mirror;
+                    else
+                        currMatType = MaterialType::Normal;
                 }
                 else if (cmd == "translate") // Below are Transformations.
                 {
