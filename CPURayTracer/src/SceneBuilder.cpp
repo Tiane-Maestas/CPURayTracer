@@ -79,19 +79,20 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 4, params); // pos, radius 
                     if (validinput) 
                     {
-                        std::shared_ptr<Sphere> sph = std::make_unique<Sphere>(params[0], params[1], params[2], params[3]);
-                        sph->material = Material();
+                        std::shared_ptr<Sphere> sph = std::make_shared<Sphere>(params[0], params[1], params[2], params[3]);
+                        Material mat;
                         for (int i = 0; i < 3; i++) 
                         {
-                            sph->material.ambient[i] = currAmbient[i];
-                            sph->material.diffuse[i] = currDiffuse[i];
-                            sph->material.specular[i] = currSpecular[i];
-                            sph->material.emission[i] = currEmission[i];
+                            mat.ambient[i] = currAmbient[i];
+                            mat.diffuse[i] = currDiffuse[i];
+                            mat.specular[i] = currSpecular[i];
+                            mat.emission[i] = currEmission[i];
                         }
-                        sph->material.shininess = currShininess;
-                        sph->material.type = currMatType;
-                        sph->UpdateTransform(transfstack.top());
+                        mat.shininess = currShininess;
+                        mat.type = currMatType;
+                        sph->UpdateMaterial(mat);
 
+                        sph->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(sph);
                     }
                 }
@@ -100,19 +101,20 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 4, params); // pos, radius 
                     if (validinput) 
                     {
-                        std::shared_ptr<Ellipsoid> elp = std::make_unique<Ellipsoid>(params[0], params[1], params[2], params[3]);
-                        elp->material = Material();
-                        for (int i = 0; i < 3; i++) 
+                        std::shared_ptr<Ellipsoid> elp = std::make_shared<Ellipsoid>(params[0], params[1], params[2], params[3]);
+                        Material mat;
+                        for (int i = 0; i < 3; i++)
                         {
-                            elp->material.ambient[i] = currAmbient[i];
-                            elp->material.diffuse[i] = currDiffuse[i];
-                            elp->material.specular[i] = currSpecular[i];
-                            elp->material.emission[i] = currEmission[i];
+                            mat.ambient[i] = currAmbient[i];
+                            mat.diffuse[i] = currDiffuse[i];
+                            mat.specular[i] = currSpecular[i];
+                            mat.emission[i] = currEmission[i];
                         }
-                        elp->material.shininess = currShininess;
-                        elp->material.type = currMatType;
-                        elp->UpdateTransform(transfstack.top());
+                        mat.shininess = currShininess;
+                        mat.type = currMatType;
+                        elp->UpdateMaterial(mat);
 
+                        elp->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(elp);
                     }
                 }
@@ -140,7 +142,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     if (validinput) 
                     {
                         Triangle tri = Triangle(m_vertices[(int)params[0]].first, m_vertices[(int)params[1]].first, m_vertices[(int)params[2]].first);
-                        tri.setNormals(m_vertices[(int)params[0]].second, m_vertices[(int)params[1]].second, m_vertices[(int)params[2]].second);
+                        tri.SetNormals(m_vertices[(int)params[0]].second, m_vertices[(int)params[1]].second, m_vertices[(int)params[2]].second);
                         m_currentTriangles.push_back(tri);
                     }
                 }
@@ -149,20 +151,21 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     if (m_currentTriangles.size() > 0) 
                     {
                         std::string name; cmdParams >> name;
-                        std::shared_ptr<Mesh> mesh = std::make_unique<Mesh>(0, 0, 0, name);
-                        mesh->triangles = std::vector<Triangle>(m_currentTriangles);
+                        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(0, 0, 0, name);
+                        mesh->SetTriangles(m_currentTriangles);
                         m_currentTriangles.clear(); // Clear triangles for next mesh.
 
-                        mesh->material = Material();
-                        for (int i = 0; i < 3; i++) 
+                        Material mat;
+                        for (int i = 0; i < 3; i++)
                         {
-                            mesh->material.ambient[i] = currAmbient[i];
-                            mesh->material.diffuse[i] = currDiffuse[i];
-                            mesh->material.specular[i] = currSpecular[i];
-                            mesh->material.emission[i] = currEmission[i];
+                            mat.ambient[i] = currAmbient[i];
+                            mat.diffuse[i] = currDiffuse[i];
+                            mat.specular[i] = currSpecular[i];
+                            mat.emission[i] = currEmission[i];
                         }
-                        mesh->material.shininess = currShininess;
-                        mesh->material.type = currMatType;
+                        mat.shininess = currShininess;
+                        mat.type = currMatType;
+                        mesh->UpdateMaterial(mat);
 
                         mesh->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(mesh);
@@ -173,7 +176,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) 
                     {
-                        std::shared_ptr<Directional> light = std::make_unique<Directional>(params[0], params[1], params[2], params[3], params[4], params[5]);
+                        std::shared_ptr<Directional> light = std::make_shared<Directional>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         scene->lights.push_back(light);
                     }
@@ -183,7 +186,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 6, params); // x, y, z, r, g, b
                     if (validinput) 
                     {
-                        std::shared_ptr<Point> light = std::make_unique<Point>(params[0], params[1], params[2], params[3], params[4], params[5]);
+                        std::shared_ptr<Point> light = std::make_shared<Point>(params[0], params[1], params[2], params[3], params[4], params[5]);
                         light->UpdateTransform(transfstack.top());
                         light->attenuation = vec3(attenuation[0], attenuation[1], attenuation[2]);
                         scene->lights.push_back(light);

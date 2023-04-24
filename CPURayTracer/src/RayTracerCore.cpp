@@ -1,6 +1,6 @@
 #include "../header/RayTracerCore.h"
 
-vec4 Ray::At(float t)
+vec4 Ray::At(float t) const
 {
 	if (t == FLT_MAX) { return vec4(FLT_MAX); }
 	return m_pos + t * m_dir;

@@ -9,15 +9,15 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, RenderingOptions options)
 
 	// Set number of threads to use.
 	m_numThreads = std::thread::hardware_concurrency();
-	if (options.NumberOfUsedThreads == Amount::None)
+	if (options.NumberOfUsedThreads == ThreadAmount::None)
 	{
 		m_numThreads = 0;
 	}
-	else if (options.NumberOfUsedThreads == Amount::Single)
+	else if (options.NumberOfUsedThreads == ThreadAmount::Single)
 	{
 		m_numThreads = 1;
 	}
-	else if (options.NumberOfUsedThreads == Amount::Half)
+	else if (options.NumberOfUsedThreads == ThreadAmount::Half)
 	{
 		m_numThreads = m_numThreads / 2;
 	}
@@ -34,7 +34,7 @@ Renderer::~Renderer()
 void Renderer::RenderScene()
 {
 	// First update the camera fov in the x-direction by the world aspect ratio.
-	m_scene->camera.setFOVx((float)m_options.ImageWidth, (float)m_options.ImageHeight);
+	m_scene->camera.SetFOV((float)m_options.ImageWidth, (float)m_options.ImageHeight);
 
 	// Transform object if needed.
 	m_scene->TransformObjects();

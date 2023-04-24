@@ -11,14 +11,14 @@ public:
 	Camera() {}
 	~Camera() {}
 	// Getters
-	vec4 getPosition() { return m_pos; }
-	vec4 getLookingAt() { return m_center; }
-	vec3 getUp() { return m_up; }
-	vec2 getFOV() { return m_fov; }
+	vec4 GetPosition() { return m_pos; }
+	vec4 GetLookingAt() { return m_center; }
+	vec3 GetUp() { return m_up; }
+	vec2 GetFOV() { return m_fov; }
 	// Setters
 	void UpdateTransform(mat4 transf) { m_transf = transf; }
 	void ChangeCenter(mat4 transf) { m_center = transf * m_center; }
-	void setFOVx(float imageWidth, float imageHeight); // This is so that the 'World Aspect Ratio' is always 1.
+	void SetFOV(float imageWidth, float imageHeight); // This is so that the 'World Aspect Ratio' is always 1.
 	// This will transform camera position and up vector by its current transform.
 	// Note: The up vector transform hasn't been tested.
 	void Transform();

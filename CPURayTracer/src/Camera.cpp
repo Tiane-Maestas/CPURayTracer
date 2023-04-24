@@ -8,7 +8,7 @@ Camera::Camera(float eyex, float eyey, float eyez, float centerx, float centery,
 	m_fov = vec2(glm::radians((float)fovy), glm::radians((float)fovy));
 }
 
-void Camera::setFOVx(float imageWidth, float imageHeight)
+void Camera::SetFOV(float imageWidth, float imageHeight)
 {
 	m_fov.x = 2.0f * atan2(imageWidth * tan(m_fov.y / 2.0f), imageHeight);
 }

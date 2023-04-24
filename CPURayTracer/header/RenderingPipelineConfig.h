@@ -17,7 +17,7 @@ typedef glm::vec2 vec2;
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
 
-enum Amount {
+enum ThreadAmount {
 	None,
 	Single,
 	Half,
@@ -30,7 +30,7 @@ struct RenderingOptions
 	uint32_t ImageHeight = 480;
 	uint32_t MaxRayDepth = 5;
 	uint32_t RaysPerPixel = 5;
-	Amount NumberOfUsedThreads = Amount::Maximum;
+	ThreadAmount NumberOfUsedThreads = ThreadAmount::Maximum;
 	std::string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
 };

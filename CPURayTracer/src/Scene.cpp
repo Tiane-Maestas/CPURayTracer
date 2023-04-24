@@ -2,12 +2,11 @@
 
 void Scene::TransformObjects()
 {
-	for (auto& mesh : meshes) 
+	for (std::shared_ptr<Traceable> mesh : meshes) 
 	{
-		if (dynamic_cast<Ellipsoid*>(mesh.get())) continue; // Don't transform ellipsoids. Handled in renderer.
 		mesh->Transform();
 	}
-	for (auto& light : lights)
+	for (std::shared_ptr<Light> light : lights)
 	{
 		light->Transform();
 	}
