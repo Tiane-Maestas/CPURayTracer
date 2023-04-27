@@ -15,6 +15,7 @@ public:
 private:
 	std::shared_ptr<Scene> m_scene;
 	RenderingOptions m_options;
+	// Pixel Buffer
 	uint8_t* m_imagePixels;
 	uint32_t m_totNumBytes;
 	// Threading Properties

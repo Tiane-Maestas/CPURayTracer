@@ -7,7 +7,7 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c)
 	m_normal = normalize(m_normal);
 }
 
-Intersection Triangle::Intersect(const Ray& ray)
+Intersection Triangle::Intersect(const Ray& ray) const
 {
 	if (RenderingStatistics::SaveStatistics)
 		RenderingStatistics::NumTriTests++;
@@ -55,10 +55,10 @@ void Triangle::Transform(const mat4& transf)
 	m_normal = normalize(transpose(inverse(mat3(transf))) * m_normal);
 }
 
-Intersection Mesh::Intersect(const Ray& ray)
+Intersection Mesh::Intersect(const Ray& ray) const
 {
 	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
-	for (Triangle& tri : m_triangles) 
+	for (const Triangle& tri : m_triangles)
 	{
 		Intersection triIntersection = tri.Intersect(ray);
 		if (length(triIntersection.hitPos - ray.GetPosition()) < length(intersection.hitPos - ray.GetPosition())) // Depth Test
@@ -77,7 +77,7 @@ void Mesh::Transform()
 	}
 }
 
-Intersection Sphere::Intersect(const Ray& ray)
+Intersection Sphere::Intersect(const Ray& ray) const
 {
 	if (RenderingStatistics::SaveStatistics)
 		RenderingStatistics::NumSphTests++;
@@ -139,7 +139,7 @@ void Sphere::Transform()
 	m_pos = m_transf * m_pos;
 }
 
-Intersection Ellipsoid::Intersect(const Ray& ray)
+Intersection Ellipsoid::Intersect(const Ray& ray) const
 {
 	if (RenderingStatistics::SaveStatistics)
 		RenderingStatistics::NumElpTests++;

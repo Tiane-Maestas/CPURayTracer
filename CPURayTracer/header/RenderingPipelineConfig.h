@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <deque>
+#include <algorithm>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -16,6 +17,8 @@ typedef glm::mat4 mat4;
 typedef glm::vec2 vec2;
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
+
+const bool UseBVHAcceleration = true;
 
 enum ThreadAmount {
 	None,

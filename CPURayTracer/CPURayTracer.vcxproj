@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="header\GlobalDefinitions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\BoundingVolumes.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Lights.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="src\SceneBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="header\BoundingVolumes.h" />
     <ClInclude Include="header\Camera.h" />
     <ClInclude Include="header\Lights.h" />
     <ClInclude Include="header\Materials.h" />

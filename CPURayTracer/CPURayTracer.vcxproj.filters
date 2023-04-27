@@ -45,6 +45,9 @@
     <ClCompile Include="src\RayTracerCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\BoundingVolumes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\Camera.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="header\RayTracerCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="header\BoundingVolumes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

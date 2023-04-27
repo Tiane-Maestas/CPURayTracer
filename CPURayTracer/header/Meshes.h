@@ -1,12 +1,14 @@
 #pragma once
 #include "RayTracerCore.h"
+#include "BoundingVolumes.h"
 
-class Triangle 
+// You can intersect with a triangle but you cannot render a single triangle.
+class Triangle : public Intersectable
 {
 public:
 	Triangle(vec4 a, vec4 b, vec4 c);
 	~Triangle() {}
-	Intersection Intersect(const Ray& ray);
+	virtual Intersection Intersect(const Ray& ray) const;
 	// Setters
 	void SetNormals(vec3 aNormal, vec3 bNormal, vec3 cNormal) { m_aNormal = aNormal; m_bNormal = bNormal; m_cNormal = cNormal; }
 	void Transform(const mat4& transf);
@@ -23,7 +25,7 @@ public:
 	Mesh(vec4 pos, std::string name) { m_name = name; m_pos = pos; }
 	virtual ~Mesh() {}
 	// Traceable	
-	virtual Intersection Intersect(const Ray& ray);
+	virtual Intersection Intersect(const Ray& ray) const;
 	// This will transform mesh position and all triagnles by current 'm_transf'.
 	virtual void Transform();
 	// Setters
@@ -40,7 +42,7 @@ public:
 	Sphere(vec4 pos, float r) { m_name = "Sphere"; m_pos = pos; m_radius = r; }
 	virtual ~Sphere() {}
 	// Traceable	
-	virtual Intersection Intersect(const Ray& ray);
+	virtual Intersection Intersect(const Ray& ray) const;
 	virtual void Transform();
 protected:
 	float m_radius = 0;
@@ -54,6 +56,6 @@ public:
 	Ellipsoid(vec4 pos, float r) : Sphere(pos, r) { m_name = "Ellipsoid"; }
 	~Ellipsoid() {}
 	// Traceable	
-	virtual Intersection Intersect(const Ray& ray);
+	virtual Intersection Intersect(const Ray& ray) const;
 	virtual void Transform() {} // Ellipsoids don't transform normally.
 };

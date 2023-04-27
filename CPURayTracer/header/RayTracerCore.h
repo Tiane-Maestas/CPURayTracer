@@ -26,19 +26,39 @@ struct Intersection
 	Material material;
 };
 
-// Any object that can be rendered to the scene must implement this interface.
-class Traceable
+// Axis-Aligned Bounding Box for acceleration.
+struct aabb
+{
+	vec3 minimums;
+	vec3 maximums;
+	bool Intersect(const Ray& ray) const;
+};
+
+// Any object that can be intersected with a ray must implement this interface.
+class Intersectable 
 {
 public:
 	// Given a ray, return the intersection it was closest hit at.
 	// If not hit hitPos = vec4(FLT_MAX);
-	virtual Intersection Intersect(const Ray& ray) = 0;
+	virtual Intersection Intersect(const Ray& ray) const 
+	{ 
+		return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} }; 
+	}
+	aabb GetBounds() const { return m_boundingBox; }
+protected:
+	aabb m_boundingBox = { vec3(FLT_MAX), vec3(-1 * FLT_MAX) };
+};
+
+// Any object that can be rendered to the scene must implement this interface.
+class Traceable : public Intersectable
+{
+public:
 	// Must update the object by its current m_transf.
 	virtual void Transform() = 0;
 	// Getters
-	std::string GetName() { return m_name; }
-	vec4 GetPosition() { return m_pos; }
-	mat4 GetTransform() { return m_transf; }
+	std::string GetName() const { return m_name; }
+	vec4 GetPosition() const { return m_pos; }
+	mat4 GetTransform() const { return m_transf; }
 	// Setters
 	void UpdateMaterial(Material material) { m_material = material; }
 	void UpdateTransform(mat4 transf) { m_transf = transf; }

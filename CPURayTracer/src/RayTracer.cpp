@@ -63,22 +63,25 @@ Ray RayTracer::RayThroughPixel(Scene* scene, float x, float y)
 	return Ray(scene->camera.GetPosition(), dir);
 }
 
-// ---Start of Intersection Section---
 Intersection RayTracer::FindIntersection(Scene* scene, const Ray& ray)
 {
 	if (RenderingStatistics::SaveStatistics)
 		RenderingStatistics::RaysCasted++;
 
-	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };
-	for (std::shared_ptr<Traceable> mesh : scene->meshes)
+	if (!UseBVHAcceleration) 
 	{
-		Intersection meshIntersection = mesh->Intersect(ray);
-		if (length(meshIntersection.hitPos - ray.GetPosition()) < length(intersection.hitPos - ray.GetPosition())) // Depth Test
-			intersection = meshIntersection;
+		Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };
+		for (std::shared_ptr<Traceable> mesh : scene->meshes)
+		{
+			Intersection meshIntersection = mesh->Intersect(ray);
+			if (length(meshIntersection.hitPos - ray.GetPosition()) < length(intersection.hitPos - ray.GetPosition())) // Depth Test
+				intersection = meshIntersection;
+		}
+		return intersection;
 	}
-	return intersection;
+
+	return scene->bvh.get()->Intersect(ray);
 }
-// ---End of Intersection Section---
 
 // Helper function for 'FindColor'
 vec3 ComputeColor(const vec3& direction, const vec3& normal, const vec3& halfvec, const vec3& color, const vec3& diffuse, const vec3& specular, const float shininess, const vec3& attenuation, const float intensity, const float distance)

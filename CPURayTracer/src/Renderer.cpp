@@ -39,6 +39,11 @@ void Renderer::RenderScene()
 	// Transform object if needed.
 	m_scene->TransformObjects();
 
+	// Prepare Acceleration.
+	Timer bvhBuild("Build BVH");
+	m_scene.get()->BuildAccelratedDatabase();
+	bvhBuild.stop();
+
 	Timer traceImage("TraceImage");
 
 	if (m_numThreads == 0) // Run on the main thread.
