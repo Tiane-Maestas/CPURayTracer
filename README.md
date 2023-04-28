@@ -15,3 +15,4 @@
 <img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/Dragon.png'/>
 
  - Multithreading
+ - Scene & Mesh Bounding Volume Hierarchy
