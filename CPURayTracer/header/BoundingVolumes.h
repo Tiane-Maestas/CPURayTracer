@@ -5,7 +5,7 @@ class BoundingVolumeHierarchy
 {
 public:
 	BoundingVolumeHierarchy() {}
-	void QuickSetup(std::vector<Intersectable> intersectables);
+	void QuickSetup(std::vector<Intersectable*> intersectables);
 	Intersection Intersect(const Ray& ray) const;
 private:
 	// Total bounds of this root.

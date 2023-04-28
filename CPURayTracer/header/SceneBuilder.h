@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "Scene.h"
+#include "Timer.h"
 
 class SceneBuilder 
 {

@@ -5,6 +5,25 @@ Triangle::Triangle(vec4 a, vec4 b, vec4 c)
 	m_a = a; m_b = b; m_c = c;
 	m_normal = cross(vec3(b - a), vec3(c - a)); // Right hand rule definition.
 	m_normal = normalize(m_normal);
+	UpdateBounds();
+}
+
+void Triangle::UpdateBounds() 
+{
+	for (int xyz = 0; xyz < 3; xyz++)
+	{
+		float minVal = m_a[xyz]; // Vertex 1
+		float maxVal = m_a[xyz]; // Vertex 1
+
+		minVal = std::min(minVal, m_b[xyz]); // Vertex 2
+		maxVal = std::max(maxVal, m_b[xyz]); // Vertex 2
+
+		minVal = std::min(minVal, m_c[xyz]); // Vertex 3
+		maxVal = std::max(maxVal, m_c[xyz]); // Vertex 3
+
+		m_boundingBox.minimums[xyz] = minVal;
+		m_boundingBox.maximums[xyz] = maxVal;
+	}
 }
 
 Intersection Triangle::Intersect(const Ray& ray) const
@@ -53,18 +72,27 @@ void Triangle::Transform(const mat4& transf)
 	m_bNormal = transpose(inverse(mat3(transf))) * m_bNormal;
 	m_cNormal = transpose(inverse(mat3(transf))) * m_cNormal;
 	m_normal = normalize(transpose(inverse(mat3(transf))) * m_normal);
+	UpdateBounds();
 }
 
 Intersection Mesh::Intersect(const Ray& ray) const
 {
 	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
-	for (const Triangle& tri : m_triangles)
+	if (!UseBVHAcceleration)
 	{
-		Intersection triIntersection = tri.Intersect(ray);
-		if (length(triIntersection.hitPos - ray.GetPosition()) < length(intersection.hitPos - ray.GetPosition())) // Depth Test
-			intersection = triIntersection;
+		for (const Triangle& tri : m_triangles)
+		{
+			Intersection triIntersection = tri.Intersect(ray);
+			if (length(triIntersection.hitPos - ray.GetPosition()) < length(intersection.hitPos - ray.GetPosition())) // Depth Test
+				intersection = triIntersection;
+		}		
 	}
-	intersection.material = m_material;
+	else 
+	{
+		intersection = m_bvh.Intersect(ray);
+	}
+	
+	intersection.material = m_material; // Triangles don't have access to the mateiral.
 	return intersection;
 }
 
@@ -75,6 +103,40 @@ void Mesh::Transform()
 	{
 		tri.Transform(m_transf);
 	}
+	UpdateBounds();
+}
+
+void Mesh::SetTriangles(std::vector<Triangle> triangles)
+{
+	m_triangles = triangles;
+	UpdateBounds();
+}
+
+void Mesh::UpdateBounds()
+{
+	for (Triangle& tri : m_triangles)
+	{
+		aabb currBB = tri.GetBounds();
+
+		for (int xyz = 0; xyz < 3; xyz++)
+		{
+			float minVal = currBB.minimums[xyz];
+			float maxVal = currBB.maximums[xyz];
+
+			minVal = std::min(minVal, m_boundingBox.minimums[xyz]);
+			maxVal = std::max(maxVal, m_boundingBox.maximums[xyz]);
+
+			m_boundingBox.minimums[xyz] = minVal;
+			m_boundingBox.maximums[xyz] = maxVal;
+		}
+	}
+
+	// Anytime bounds are updated you have to Re-Build the BVH.
+	Timer bvhBuild("Build " + m_name + " BVH");
+	std::vector<Intersectable*> intersectables = std::vector<Intersectable*>();
+	for (Triangle& tri : m_triangles)
+		intersectables.push_back(&tri);
+	m_bvh.QuickSetup(intersectables);
 }
 
 Intersection Sphere::Intersect(const Ray& ray) const
@@ -137,6 +199,13 @@ Intersection Sphere::Intersect(const Ray& ray) const
 void Sphere::Transform()
 {
 	m_pos = m_transf * m_pos;
+	UpdateBounds();
+}
+
+void Sphere::UpdateBounds()
+{
+	m_boundingBox.minimums = m_pos - m_radius;
+	m_boundingBox.maximums = m_pos + m_radius;
 }
 
 Intersection Ellipsoid::Intersect(const Ray& ray) const
@@ -202,4 +271,12 @@ Intersection Ellipsoid::Intersect(const Ray& ray) const
 	}
 
 	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
+}
+
+void Ellipsoid::UpdateBounds()
+{
+	m_boundingBox.minimums = m_pos - m_radius;
+	m_boundingBox.maximums = m_pos + m_radius;
+	m_boundingBox.minimums = m_transf * vec4(m_boundingBox.minimums, 1);
+	m_boundingBox.maximums = m_transf * vec4(m_boundingBox.maximums, 1);
 }

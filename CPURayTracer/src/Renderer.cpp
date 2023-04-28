@@ -36,13 +36,11 @@ void Renderer::RenderScene()
 	// First update the camera fov in the x-direction by the world aspect ratio.
 	m_scene->camera.SetFOV((float)m_options.ImageWidth, (float)m_options.ImageHeight);
 
-	// Transform object if needed.
+	// Transform objects if needed.
 	m_scene->TransformObjects();
 
-	// Prepare Acceleration.
-	Timer bvhBuild("Build BVH");
+	// Prepare Acceleration.	
 	m_scene.get()->BuildAccelratedDatabase();
-	bvhBuild.stop();
 
 	Timer traceImage("TraceImage");
 
@@ -97,7 +95,7 @@ void Renderer::RenderScene()
 	// Wait for each tracer to be done.
 	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
-		rayTracers[i].join();
+		rayTracers[i].Join();
 	}
 }
 

@@ -14,6 +14,7 @@ bool CustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, con
 
 std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
 {
+    Timer sceneBuild("Parse Scene");
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
     std::ifstream scenefile;

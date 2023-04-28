@@ -1,32 +1,35 @@
 #include "../header/BoundingVolumes.h"
 
 // Comparator for sorting BoundingVolumeHierarchy intersectables list.
-inline bool box_compare(const Intersectable& intersectable_a, const Intersectable& intersectable_b, int axis) {
-    return intersectable_a.GetBounds().minimums[axis] < intersectable_b.GetBounds().minimums[axis];
+inline bool box_compare(const Intersectable* intersectable_a, const Intersectable* intersectable_b, int axis) {
+    return intersectable_a->GetBounds().minimums[axis] < intersectable_b->GetBounds().minimums[axis];
 }
 
-bool box_x_compare(const Intersectable& intersectable_a, const Intersectable& intersectable_b) {
+bool box_x_compare(const Intersectable* intersectable_a, const Intersectable* intersectable_b) {
     return box_compare(intersectable_a, intersectable_b, 0);
 }
 
-bool box_y_compare(const Intersectable& intersectable_a, const Intersectable& intersectable_b) {
+bool box_y_compare(const Intersectable* intersectable_a, const Intersectable* intersectable_b) {
     return box_compare(intersectable_a, intersectable_b, 1);
 }
 
-bool box_z_compare(const Intersectable& intersectable_a, const Intersectable& intersectable_b) {
+bool box_z_compare(const Intersectable* intersectable_a, const Intersectable* intersectable_b) {
     return box_compare(intersectable_a, intersectable_b, 2);
 }
 
-void BoundingVolumeHierarchy::QuickSetup(std::vector<Intersectable> intersectables)
+void BoundingVolumeHierarchy::QuickSetup(std::vector<Intersectable*> intersectables)
 {
     // Exit Recursion
-    if (intersectables.size() == 1)
-        m_leafVolume = &intersectables[0]; return;
+    if (intersectables.size() == 1) 
+    {
+        m_leafVolume = intersectables[0]; 
+        return;
+    }
 
     // Set bounding box of current node considering it contains all of the current intersectables.
-    for (Intersectable& intersectable : intersectables)
+    for (Intersectable* intersectable : intersectables)
     {
-        aabb currBB = intersectable.GetBounds();
+        aabb currBB = intersectable->GetBounds();
 
         for (int xyz = 0; xyz < 3; xyz++)
         {
@@ -54,8 +57,8 @@ void BoundingVolumeHierarchy::QuickSetup(std::vector<Intersectable> intersectabl
 
     m_leftVolume = std::make_shared<BoundingVolumeHierarchy>();
     m_rightVolume = std::make_shared<BoundingVolumeHierarchy>();
-    m_leftVolume.get()->QuickSetup(std::vector<Intersectable>(intersectables.begin(), intersectables.begin() + intersectables.size() / 2));
-    m_rightVolume.get()->QuickSetup(std::vector<Intersectable>(intersectables.begin() + intersectables.size() / 2, intersectables.end()));
+    m_leftVolume.get()->QuickSetup(std::vector<Intersectable*>(intersectables.begin(), intersectables.begin() + intersectables.size() / 2));
+    m_rightVolume.get()->QuickSetup(std::vector<Intersectable*>(intersectables.begin() + intersectables.size() / 2, intersectables.end()));
 }
 
 Intersection BoundingVolumeHierarchy::Intersect(const Ray& ray) const

@@ -1,10 +1,13 @@
 #include "../header/Scene.h"
+#include "../header/Timer.h"
 
 void Scene::BuildAccelratedDatabase()
 {
-	std::vector<Intersectable> inter = std::vector<Intersectable>(meshes.size());
-	std::transform(meshes.begin(), meshes.end(), inter.begin(), [](std::shared_ptr<Traceable> x) { return dynamic_cast<Intersectable*>(x.get()); });
-	bvh.get()->QuickSetup(inter);
+	Timer bvhBuild("Build Scene BVH");
+	std::vector<Intersectable*> intersectables = std::vector<Intersectable*>();
+	for (std::shared_ptr<Traceable> mesh : meshes)
+		intersectables.push_back(mesh.get());
+	bvh.get()->QuickSetup(intersectables);
 }
 
 void Scene::TransformObjects()
@@ -18,4 +21,6 @@ void Scene::TransformObjects()
 		light->Transform();
 	}
 	camera.Transform();
+	// Must Re-Build the database anytime the scene is updated in case bounding boxes change.
+	BuildAccelratedDatabase();
 }

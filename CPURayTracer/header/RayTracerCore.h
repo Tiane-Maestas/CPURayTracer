@@ -40,13 +40,12 @@ class Intersectable
 public:
 	// Given a ray, return the intersection it was closest hit at.
 	// If not hit hitPos = vec4(FLT_MAX);
-	virtual Intersection Intersect(const Ray& ray) const 
-	{ 
-		return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} }; 
-	}
+	virtual Intersection Intersect(const Ray& ray) const = 0;
 	aabb GetBounds() const { return m_boundingBox; }
 protected:
 	aabb m_boundingBox = { vec3(FLT_MAX), vec3(-1 * FLT_MAX) };
+	// Set bounding box of this Intersectable.
+	virtual void UpdateBounds() = 0;
 };
 
 // Any object that can be rendered to the scene must implement this interface.

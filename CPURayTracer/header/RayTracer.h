@@ -13,7 +13,7 @@ public:
 	RayTracer(uint8_t* imagePixels, float width, float height);
 	~RayTracer() {}
 	// Getters
-	void join() { m_thread->join(); }
+	void Join() { m_thread->join(); }
 	// Setters
 	void SetDefaultColor(vec4 defaultColor) { m_defaultColor = defaultColor; }
 	void SetRayDepth(int maxRayDepth) { m_maxRayDepth = maxRayDepth; }
