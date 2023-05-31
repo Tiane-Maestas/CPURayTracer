@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <stdint.h>
+#include <string>
 #include <vector>
 #include <stack>
 #include <deque>
@@ -20,13 +22,15 @@ typedef glm::vec4 vec4;
 
 const bool UseBVHAcceleration = true;
 
-enum ThreadAmount {
+enum ThreadAmount 
+{
 	None,
 	Single,
 	Half,
 	Maximum
 };
 
+// Default Rendering Options.
 struct RenderingOptions
 {
 	uint32_t ImageWidth = 640;
@@ -36,6 +40,7 @@ struct RenderingOptions
 	ThreadAmount NumberOfUsedThreads = ThreadAmount::Maximum;
 	std::string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
+	bool UseSkyBox = true;
 };
 
 namespace RenderingStatistics

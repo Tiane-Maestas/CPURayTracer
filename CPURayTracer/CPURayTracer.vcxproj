@@ -93,6 +93,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies/include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,6 +111,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies/include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,6 +129,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies/include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +147,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies/include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,6 +163,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\BoundingVolumes.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\Lights.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
     <ClCompile Include="src\RayTracer.cpp" />
@@ -166,10 +171,12 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\SceneBuilder.cpp" />
+    <ClCompile Include="src\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\BoundingVolumes.h" />
     <ClInclude Include="header\Camera.h" />
+    <ClInclude Include="header\Image.h" />
     <ClInclude Include="header\Lights.h" />
     <ClInclude Include="header\Materials.h" />
     <ClInclude Include="header\Meshes.h" />
@@ -179,6 +186,7 @@
     <ClInclude Include="header\Scene.h" />
     <ClInclude Include="header\SceneBuilder.h" />
     <ClInclude Include="header\RenderingPipelineConfig.h" />
+    <ClInclude Include="header\Skybox.h" />
     <ClInclude Include="header\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

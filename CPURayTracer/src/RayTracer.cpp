@@ -1,6 +1,6 @@
 #include "../header/RayTracer.h"
 
-RayTracer::RayTracer(uint8_t* imagePixels, float width, float height)
+RayTracer::RayTracer(Image* imagePixels, float width, float height)
 {
 	m_imagePixels = imagePixels;
 	m_imageWidth = width;
@@ -17,15 +17,9 @@ void RayTracer::TraceImage(Scene* scene, const PixelBlock& block)
 		{
 			Ray ray = RayThroughPixel(scene, 0.5f + x, 0.5f + y);
 			Intersection intersection = FindIntersection(scene, ray);
-
-			uint8_t color[3] = { 0, 0, 0 };
 			vec3 col = FindColor(scene, intersection, 0);
-			TransformColor(color, col);
-
-			ColorPixel(pixel, color);
-			pixel += 3;
+			(*m_imagePixels)(x, y) = col;
 		}
-		pixel += 3 * (m_imageWidth - (block.xMax - block.xMin));
 	}
 }
 
@@ -99,7 +93,7 @@ vec3 ComputeColor(const vec3& direction, const vec3& normal, const vec3& halfvec
 
 vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int recursiveCall)
 {
-	if (intersection.hitPos == vec4(FLT_MAX)) { return m_defaultColor; } // Return background if hit nothing.
+	if (intersection.hitPos == vec4(FLT_MAX)) { return (m_useSkyBox) ? scene->skybox.Query(intersection.ray.GetDirection()) : m_defaultColor; } // Return background if hit nothing.
 
 	// Add color from perfect mirror reflections.
 	if (intersection.material.type == MaterialType::Mirror)
@@ -107,7 +101,7 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 		vec3 hitDir = intersection.ray.GetDirection();
 		vec4 direction = vec4(normalize(hitDir - 2 * dot(hitDir, intersection.normal) * intersection.normal), 0);
 		Ray reflectionRay(intersection.hitPos + 0.01f * direction, direction);
-		return intersection.material.ambient * ColorFromReflections(scene, reflectionRay, recursiveCall);
+		return ColorFromReflections(scene, reflectionRay, recursiveCall);
 	}
 
 	vec3 currentColor = intersection.material.ambient + intersection.material.emission;
@@ -163,21 +157,4 @@ vec3 RayTracer::ColorFromReflections(Scene* scene, const Ray& reflectionRay, int
 	if (recursiveCall >= m_maxRayDepth) { return vec3(0.0); } // Add nothing if we hit reflection depth.
 	Intersection intersection = FindIntersection(scene, reflectionRay);
 	return FindColor(scene, intersection, ++recursiveCall);
-}
-
-void RayTracer::TransformColor(uint8_t* properColor, vec3 color)
-{
-	float r = color.x * 255;
-	float g = color.y * 255;
-	float b = color.z * 255;
-	properColor[0] = (r > 255) ? 255 : (uint8_t)r;
-	properColor[1] = (g > 255) ? 255 : (uint8_t)g;
-	properColor[2] = (b > 255) ? 255 : (uint8_t)b;
-}
-
-void RayTracer::ColorPixel(int pixel, const uint8_t* channels)
-{
-	m_imagePixels[pixel + 0] = channels[2]; // Blue
-	m_imagePixels[pixel + 1] = channels[1]; // Green
-	m_imagePixels[pixel + 2] = channels[0]; // Red
 }

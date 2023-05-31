@@ -4,8 +4,7 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, RenderingOptions options)
 {
 	m_scene = scene;
 	m_options = options;
-	m_totNumBytes = 3 * (options.ImageWidth * options.ImageHeight);
-	m_imagePixels = new uint8_t[m_totNumBytes];
+	m_image = Image(options.ImageWidth, options.ImageHeight);
 
 	// Set number of threads to use.
 	m_numThreads = std::thread::hardware_concurrency();
@@ -26,11 +25,6 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, RenderingOptions options)
 		m_blockSize = std::min(options.ImageWidth, options.ImageHeight) / (4 * m_numThreads); // Take the min in case of weird aspect ratios.
 }
 
-Renderer::~Renderer() 
-{
-	delete m_imagePixels;
-}
-
 void Renderer::RenderScene()
 {
 	// First update the camera fov in the x-direction by the world aspect ratio.
@@ -46,7 +40,8 @@ void Renderer::RenderScene()
 
 	if (m_numThreads == 0) // Run on the main thread.
 	{
-		RayTracer rayTracer(m_imagePixels, (float)m_options.ImageWidth, (float)m_options.ImageHeight);
+		RayTracer rayTracer(&m_image, (float)m_options.ImageWidth, (float)m_options.ImageHeight);
+		rayTracer.UseSkyBox(m_options.UseSkyBox);
 		PixelBlock block{ 0, 0, m_options.ImageWidth, m_options.ImageHeight };
 		rayTracer.TraceImage(m_scene.get(), block);
 		return;
@@ -56,7 +51,8 @@ void Renderer::RenderScene()
 	std::vector<RayTracer> rayTracers;
 	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
-		rayTracers.push_back(RayTracer(m_imagePixels, (float)m_options.ImageWidth, (float)m_options.ImageHeight));
+		rayTracers.push_back(RayTracer(&m_image, (float)m_options.ImageWidth, (float)m_options.ImageHeight));
+		rayTracers[i].UseSkyBox(m_options.UseSkyBox);
 	}
 
 	// Reserve a list of blocks for each thread.
@@ -88,20 +84,15 @@ void Renderer::RenderScene()
 
 	// Trace each list of blocks on each RayTracer's thread.
 	for (uint32_t i = 0; i < m_numThreads; i++)
-	{
 		rayTracers[i].TraceImage(m_scene.get(), blocksList[i]);
-	}
 
 	// Wait for each tracer to be done.
 	for (uint32_t i = 0; i < m_numThreads; i++)
-	{
 		rayTracers[i].Join();
-	}
 }
 
 void Renderer::SaveImage()
 {
-	FIBITMAP* img = FreeImage_ConvertFromRawBits(m_imagePixels, m_options.ImageWidth, m_options.ImageHeight, 3 * m_options.ImageWidth, 24, 0xFF0000, 0x00FF00, 0x0000FF, false); // If false then bottom left orign.
-	FreeImage_Save(FIF_PNG, img, m_options.OutputFileName.c_str(), 0);
+	m_image.Save(m_options.OutputFileName);
 	std::cout << "Image Saved: " << m_options.OutputFileName << std::endl;
 }
