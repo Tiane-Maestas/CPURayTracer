@@ -1,7 +1,7 @@
 size 1920 1080 
-camera 0 0 5 0 0 0 0 1 0 60
+camera -5 0 0 0 0 0 0 1 0 60
 
 matType Mirror
 sph 0.0 0.0 0.0 1.0
 
-skybox testscenes/skyboxes/earth-space-skybox
+skybox testscenes/skyboxes/earth-space-skybox jpeg

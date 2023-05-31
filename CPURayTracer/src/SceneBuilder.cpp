@@ -265,8 +265,11 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                 }
                 else if (cmd == "skybox") 
                 {
-                    std::string filepath; cmdParams >> filepath;
-                    scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath, EnviornmentMap::SkyboxType::Cube);
+                    std::string filepath; cmdParams >> filepath; cmdParams >> cmd;
+                    if(cmd == "jpeg")
+                        scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath, EnviornmentMap::SkyboxType::Cube);
+                    else
+                        scene->skybox = EnviornmentMap::Skybox(FIF_PNG, filepath, EnviornmentMap::SkyboxType::Cube);
                 }
                 else if (cmd == "translate") // Below are Transformations.
                 {

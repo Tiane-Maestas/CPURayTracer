@@ -14,47 +14,56 @@ vec3 Skybox::Query(vec3 direction)
 {
 	if (m_type == SkyboxType::Cube) 
 	{
-		float axis = std::max(fabs(direction.x), std::max(fabs(direction.y), fabs(direction.z))); // Find the axis direction is pointing.
+		float axis = std::max(fabs(direction.x), std::max(fabs(direction.y), fabs(direction.z))); // Find the major axis 'direction' is pointing.
 		if (axis == fabs(direction.x)) // X
 		{
-			direction = direction / direction.x;
 			if (direction.x > 0) // Positive
 			{
 				Image& boxSide = m_enviornmentTextures[0];
-				return boxSide(boxSide.GetWidth() * direction.z, boxSide.GetHeight() * direction.y);
+				float u = 1.0f - (direction.z / direction.x + 1.0f) * 0.5f;
+				float v = (direction.y / direction.x + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 			else // Negative 
 			{
 				Image& boxSide = m_enviornmentTextures[1];
-				return boxSide(boxSide.GetWidth() * -1.0 * direction.z, boxSide.GetHeight() * -1.0 * direction.y);
+				float u = 1.0f - (direction.z / direction.x + 1.0f) * 0.5f;
+				float v = 1.0f - (direction.y / direction.x + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 		}
 		else if (axis == fabs(direction.y)) // Y
 		{
-			direction = direction / direction.y;
 			if (direction.y > 0) // Positive
 			{
 				Image& boxSide = m_enviornmentTextures[2];
-				return boxSide(boxSide.GetWidth() * direction.x, boxSide.GetHeight() * direction.z);
+				float u = 1.0f - (direction.z / direction.y + 1.0f) * 0.5f;
+				float v = 1.0f - (direction.x / direction.y + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 			else // Negative 
 			{
 				Image& boxSide = m_enviornmentTextures[3];
-				return boxSide(boxSide.GetWidth() * -1.0 * direction.x, boxSide.GetHeight() * -1.0 * direction.z);
+				float u = (direction.z / direction.y + 1.0f) * 0.5f;
+				float v = 1.0f - (direction.x / direction.y + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 		}
 		else // Z
 		{
-			direction = direction / direction.z;
 			if (direction.z > 0) // Positive
 			{
 				Image& boxSide = m_enviornmentTextures[4];
-				return boxSide(boxSide.GetWidth() * direction.x, boxSide.GetHeight() * direction.y);
+				float u = (direction.x / direction.z + 1.0f) * 0.5f;
+				float v = (direction.y / direction.z + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 			else // Negative 
 			{
 				Image& boxSide = m_enviornmentTextures[5];
-				return boxSide(boxSide.GetWidth() * -1.0 * direction.x, boxSide.GetHeight() * -1.0 * direction.y);
+				float u = (direction.x / direction.z + 1.0f) * 0.5f;
+				float v = 1.0f - (direction.y / direction.z + 1.0f) * 0.5f;
+				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 		}
 	}
