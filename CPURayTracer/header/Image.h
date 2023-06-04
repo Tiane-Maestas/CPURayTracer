@@ -11,11 +11,7 @@ public:
 	// Getters
     vec3& operator()(int x) { return m_pixels[x]; }
     const vec3& operator()(int x) const { return m_pixels[x]; }
-	vec3& operator()(int x, int y) { 
-		if (y * m_width + x > m_width * m_height)
-			return m_pixels[0];
-		return m_pixels[y * m_width + x]; 
-	}
+	vec3& operator()(int x, int y) { return m_pixels[y * m_width + x]; }
     const vec3& operator()(int x, int y) const { return m_pixels[y * m_width + x]; }
 	uint32_t GetWidth() { return m_width; }
 	uint32_t GetHeight() { return m_height; }

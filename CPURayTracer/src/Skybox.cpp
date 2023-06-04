@@ -15,52 +15,52 @@ vec3 Skybox::Query(vec3 direction)
 	if (m_type == SkyboxType::Cube) 
 	{
 		float axis = std::max(fabs(direction.x), std::max(fabs(direction.y), fabs(direction.z))); // Find the major axis 'direction' is pointing.
-		if (axis == fabs(direction.x)) // X
+		if (axis == fabs(direction.x))
 		{
-			if (direction.x > 0) // Positive
+			if (direction.x > 0)
 			{
-				Image& boxSide = m_enviornmentTextures[0];
+				Image& boxSide = m_enviornmentTextures[0]; // Positive X
 				float u = 1.0f - (direction.z / direction.x + 1.0f) * 0.5f;
 				float v = (direction.y / direction.x + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
-			else // Negative 
+			else 
 			{
-				Image& boxSide = m_enviornmentTextures[1];
+				Image& boxSide = m_enviornmentTextures[1]; // Negative X
 				float u = 1.0f - (direction.z / direction.x + 1.0f) * 0.5f;
 				float v = 1.0f - (direction.y / direction.x + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 		}
-		else if (axis == fabs(direction.y)) // Y
+		else if (axis == fabs(direction.y))
 		{
-			if (direction.y > 0) // Positive
+			if (direction.y > 0)
 			{
-				Image& boxSide = m_enviornmentTextures[2];
+				Image& boxSide = m_enviornmentTextures[2]; // Positive Y
 				float u = 1.0f - (direction.z / direction.y + 1.0f) * 0.5f;
 				float v = 1.0f - (direction.x / direction.y + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
-			else // Negative 
+			else
 			{
-				Image& boxSide = m_enviornmentTextures[3];
+				Image& boxSide = m_enviornmentTextures[3]; // Negative Y
 				float u = (direction.z / direction.y + 1.0f) * 0.5f;
 				float v = 1.0f - (direction.x / direction.y + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
 		}
-		else // Z
+		else
 		{
-			if (direction.z > 0) // Positive
+			if (direction.z > 0)
 			{
-				Image& boxSide = m_enviornmentTextures[4];
+				Image& boxSide = m_enviornmentTextures[4]; // Positive Z
 				float u = (direction.x / direction.z + 1.0f) * 0.5f;
 				float v = (direction.y / direction.z + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
 			}
-			else // Negative 
+			else
 			{
-				Image& boxSide = m_enviornmentTextures[5];
+				Image& boxSide = m_enviornmentTextures[5]; // Negative Z
 				float u = (direction.x / direction.z + 1.0f) * 0.5f;
 				float v = 1.0f - (direction.y / direction.z + 1.0f) * 0.5f;
 				return boxSide(boxSide.GetWidth() * u, boxSide.GetHeight() * v);
