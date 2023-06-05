@@ -21,7 +21,7 @@ public:
 private:
 	// Parse a general command's paramaters into 'parameters'.
 	bool ReadCommandParameters(std::stringstream& cmdParams, const int numparams, float* parameters);
-	// Intermediate storage for constructing meshes. List of pairs between vertex and vertex normal.
-	std::vector<std::pair<vec4,vec3>> m_vertices;
-	std::vector<Triangle> m_currentTriangles;
+	// Intermediate storage for constructing meshes.
+	TriangleMeshBuffers m_meshData;
+	std::vector<ivec3> m_currentTriangleIndices;
 };

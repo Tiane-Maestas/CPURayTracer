@@ -3,36 +3,44 @@
 #include "BoundingVolumes.h"
 #include "Timer.h"
 
+// This groups all of the necessary buffers for triangle vertex information.
+struct TriangleMeshBuffers
+{
+	std::vector<vec4> positions;
+	std::vector<vec3> normals;
+	std::vector<vec2> uvs;
+};
+
 // You can intersect with a triangle but you cannot render a single triangle.
 class Triangle : public Intersectable
 {
 public:
-	Triangle(vec4 a, vec4 b, vec4 c);
+	Triangle(int a, int b, int c, TriangleMeshBuffers* buffers);
 	~Triangle() {}
 	virtual Intersection Intersect(const Ray& ray) const;
 	// Setters
-	void SetNormals(vec3 aNormal, vec3 bNormal, vec3 cNormal) { m_aNormal = aNormal; m_bNormal = bNormal; m_cNormal = cNormal; }
 	void Transform(const mat4& transf);
 private:
-	vec4 m_a = vec4(0.0), m_b = vec4(0.0), m_c = vec4(0.0); // Vertices
-	vec3 m_aNormal = vec3(0.0), m_bNormal = vec3(0.0), m_cNormal = vec3(0.0); // Vertex Normals
+	int m_indexA, m_indexB, m_indexC; // Indices of vertex information stored in mesh buffers.
+	TriangleMeshBuffers* m_buffers = nullptr;
 	vec3 m_normal = vec3(0.0); // Plane Normal
 	virtual void UpdateBounds();
 };
 
-class Mesh : public Traceable
+// You can render complete triangle mesh.
+class TriangleMesh : public Traceable
 {
 public:
-	Mesh(float x, float y, float z, std::string name) { m_name = name; m_pos = vec4(x, y, z, 1); }
-	Mesh(vec4 pos, std::string name) { m_name = name; m_pos = pos; }
-	virtual ~Mesh() {}
+	TriangleMesh(TriangleMeshBuffers buffers, std::string name) { m_buffers = buffers; m_name = name; m_pos = buffers.positions[0]; }
+	virtual ~TriangleMesh() {}
 	// Traceable	
 	virtual Intersection Intersect(const Ray& ray) const;
 	// This will transform mesh position and all triagnles by current 'm_transf'.
 	virtual void Transform();
 	// Setters
-	void SetTriangles(std::vector<Triangle> triangles);
+	void SetTriangles(std::vector<ivec3> indices);
 protected:
+	TriangleMeshBuffers m_buffers;
 	std::vector<Triangle> m_triangles;
 	BoundingVolumeHierarchy m_bvh = BoundingVolumeHierarchy();
 	virtual void UpdateBounds();

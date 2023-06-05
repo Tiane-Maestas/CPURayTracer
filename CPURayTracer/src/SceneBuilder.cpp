@@ -38,7 +38,8 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
 
         std::string line, cmd;
         std::getline(scenefile, line);
-        while (scenefile) {
+        while (scenefile) 
+        {
             // Exclude Comments and Blank Lines.
             if ((line.find_first_not_of(" \t\r\n") != std::string::npos) && (line[0] != '#'))
             {
@@ -124,7 +125,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 3, params); // pos 
                     if (validinput) 
                     {
-                        m_vertices.push_back(std::pair<vec4,vec3>(vec4(params[0], params[1], params[2], 1), vec3(0.0)));
+                        m_meshData.positions.push_back(vec4(params[0], params[1], params[2], 1));
                     }
                 }
                 else if (cmd == "vertexnormal") // Store Vertex w/ Normal.
@@ -134,7 +135,8 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     {
                         vec4 vert(params[0], params[1], params[2], 1);
                         vec3 norm(params[3], params[4], params[5]);
-                        m_vertices.push_back(std::pair<vec4, vec3>(vert, norm));
+                        m_meshData.positions.push_back(vert);
+                        m_meshData.normals.push_back(norm);
                     }
                 }
                 else if (cmd == "tri") // Store Triangle.
@@ -142,19 +144,20 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     bool validinput = ReadCommandParameters(cmdParams, 3, params); // v1, v2, v3 
                     if (validinput) 
                     {
-                        Triangle tri = Triangle(m_vertices[(int)params[0]].first, m_vertices[(int)params[1]].first, m_vertices[(int)params[2]].first);
-                        tri.SetNormals(m_vertices[(int)params[0]].second, m_vertices[(int)params[1]].second, m_vertices[(int)params[2]].second);
-                        m_currentTriangles.push_back(tri);
+                        m_currentTriangleIndices.push_back(ivec3((int)params[0], (int)params[1], (int)params[2]));
                     }
+                        
                 }
                 else if (cmd == "mesh") // Add mesh with current vector of triangles.
                 {
-                    if (m_currentTriangles.size() > 0) 
+                    if (m_currentTriangleIndices.size() > 0)
                     {
                         std::string name; cmdParams >> name;
-                        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(0, 0, 0, name);
-                        mesh->SetTriangles(m_currentTriangles);
-                        m_currentTriangles.clear(); // Clear triangles for next mesh.
+                        std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(m_meshData, name);
+                        mesh->SetTriangles(m_currentTriangleIndices);
+
+                        // Clear index data for next mesh.
+                        m_currentTriangleIndices.clear();
 
                         Material mat;
                         for (int i = 0; i < 3; i++)
@@ -265,6 +268,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                 }
                 else if (cmd == "skybox") 
                 {
+                    m_options.UseSkyBox = true;
                     std::string filepath; cmdParams >> filepath; cmdParams >> cmd;
                     if(cmd == "jpeg")
                         scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath, EnviornmentMap::SkyboxType::Cube);

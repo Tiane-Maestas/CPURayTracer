@@ -18,6 +18,7 @@ typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::vec2 vec2;
 typedef glm::vec3 vec3;
+typedef glm::ivec3 ivec3;
 typedef glm::vec4 vec4;
 
 const bool UseBVHAcceleration = true;
@@ -40,7 +41,7 @@ struct RenderingOptions
 	ThreadAmount NumberOfUsedThreads = ThreadAmount::Maximum;
 	std::string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);
-	bool UseSkyBox = true;
+	bool UseSkyBox = false;
 };
 
 namespace RenderingStatistics

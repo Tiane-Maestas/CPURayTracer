@@ -1,9 +1,10 @@
 #include "../header/Meshes.h"
 
-Triangle::Triangle(vec4 a, vec4 b, vec4 c)
+Triangle::Triangle(int a, int b, int c, TriangleMeshBuffers* buffers)
 {
-	m_a = a; m_b = b; m_c = c;
-	m_normal = cross(vec3(b - a), vec3(c - a)); // Right hand rule definition.
+	m_indexA = a; m_indexB = b; m_indexC = c;
+	m_buffers = buffers;
+	m_normal = cross(vec3(m_buffers->positions[m_indexB] - m_buffers->positions[m_indexA]), vec3(m_buffers->positions[m_indexC] - m_buffers->positions[m_indexA])); // Right hand rule definition.
 	m_normal = normalize(m_normal);
 	UpdateBounds();
 }
@@ -12,14 +13,14 @@ void Triangle::UpdateBounds()
 {
 	for (int xyz = 0; xyz < 3; xyz++)
 	{
-		float minVal = m_a[xyz]; // Vertex 1
-		float maxVal = m_a[xyz]; // Vertex 1
+		float minVal = m_buffers->positions[m_indexA][xyz]; // Vertex 1
+		float maxVal = m_buffers->positions[m_indexA][xyz]; // Vertex 1
 
-		minVal = std::min(minVal, m_b[xyz]); // Vertex 2
-		maxVal = std::max(maxVal, m_b[xyz]); // Vertex 2
+		minVal = std::min(minVal, m_buffers->positions[m_indexB][xyz]); // Vertex 2
+		maxVal = std::max(maxVal, m_buffers->positions[m_indexB][xyz]); // Vertex 2
 
-		minVal = std::min(minVal, m_c[xyz]); // Vertex 3
-		maxVal = std::max(maxVal, m_c[xyz]); // Vertex 3
+		minVal = std::min(minVal, m_buffers->positions[m_indexC][xyz]); // Vertex 3
+		maxVal = std::max(maxVal, m_buffers->positions[m_indexC][xyz]); // Vertex 3
 
 		m_boundingBox.minimums[xyz] = minVal;
 		m_boundingBox.maximums[xyz] = maxVal;
@@ -34,48 +35,67 @@ Intersection Triangle::Intersect(const Ray& ray) const
 	vec3 rayOrigin = ray.GetPosition();
 	vec3 rayDir = ray.GetDirection();
 
-	float denominator = dot(rayDir, m_normal);
-	if (denominator != 0) // The ray hits the plane of the triangle if this isn't zero.
+	vec3 edge1, edge2, h, s, q;
+	float a, f, u, v;
+	edge1 = m_buffers->positions[m_indexB] - m_buffers->positions[m_indexA];
+	edge2 = m_buffers->positions[m_indexC] - m_buffers->positions[m_indexA];
+	h = cross(rayDir, edge2);
+	a = dot(edge1, h);
+
+	if (a == 0.0f)
+		return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };    // This ray is parallel to this triangle.
+
+	f = 1.0f / a;
+	s = rayOrigin - vec3(m_buffers->positions[m_indexA]);
+	u = f * dot(s, h);
+
+	if (u < 0.0f || u > 1.0f)
+		return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };
+
+	q = cross(s, edge1);
+	v = f * dot(rayDir, q);
+
+	if (v < 0.0f || u + v > 1.0f)
+		return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };
+
+	// At this stage we can compute t to find out where the intersection point is on the line.
+	float t = f * dot(edge2, q);
+
+	if (t > 0.0f) // ray intersection
 	{
-		vec3 a(m_a); vec3 b(m_b); vec3 c(m_c);
-		float t = (dot(a, m_normal) - dot(rayOrigin, m_normal)) / denominator;
-		if (t > 0) // The triangle is in front of ray and not behind.
+		Intersection intersection = { ray, ray.At(t), m_normal, vec2(u, v), {} };
+		// Get Normals if user defined.
+		if (m_buffers->normals.size() == m_buffers->positions.size())
 		{
-			vec3 pos = ray.At(t);
-
-			vec3 _a = cross(m_normal, c - b);
-			vec3 A = _a / dot(_a, a - c);
-
-			vec3 _b = cross(m_normal, a - c);
-			vec3 B = _b / dot(_b, b - a);
-
-			vec3 _c = cross(m_normal, b - a);
-			vec3 C = _c / dot(_c, c - b);
-
-			float alpha = dot(A, pos) - dot(A, c);
-			float beta = dot(B, pos) - dot(B, a);
-			float gamma = dot(C, pos) - dot(C, b);
-			if (alpha >= 0 && beta >= 0 && gamma >= 0) // If true. Inside triangle.
-			{
-				return Intersection{ ray, ray.At(t), m_normal, vec2(0.0), {} };
-			}
+			vec3 n0 = m_buffers->normals[m_indexA];
+			vec3 n1 = m_buffers->normals[m_indexB];
+			vec3 n2 = m_buffers->normals[m_indexC];
+			float w1 = u; float w2 = v; // Normal weights for interpolation.
+			intersection.normal = w1 * n1 + w2 * n2 + n0 * (1.0f - w1 - w2);
 		}
+		// Get UVs if user defined.
+		if (m_buffers->uvs.size() == m_buffers->positions.size())
+		{
+			vec2 uv0 = m_buffers->uvs[m_indexA];
+			vec2 uv1 = m_buffers->uvs[m_indexB];
+			vec2 uv2 = m_buffers->uvs[m_indexC];
+			float w1 = u; float w2 = v; // UV weights for interpolation.
+			intersection.uv = w1 * uv1 + w2 * uv2 + uv0 * (1.0f - w1 - w2);
+		}
+		return intersection;
 	}
 
+	// This means that there is a line intersection but not a ray intersection.
 	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), {} };
 }
 
 void Triangle::Transform(const mat4& transf)
 {
-	m_a = transf * m_a; m_b = transf * m_b; m_c = transf * m_c;
-	m_aNormal = transpose(inverse(mat3(transf))) * m_aNormal;
-	m_bNormal = transpose(inverse(mat3(transf))) * m_bNormal;
-	m_cNormal = transpose(inverse(mat3(transf))) * m_cNormal;
 	m_normal = normalize(transpose(inverse(mat3(transf))) * m_normal);
 	UpdateBounds();
 }
 
-Intersection Mesh::Intersect(const Ray& ray) const
+Intersection TriangleMesh::Intersect(const Ray& ray) const
 {
 	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
 	if (!UseBVHAcceleration)
@@ -96,23 +116,32 @@ Intersection Mesh::Intersect(const Ray& ray) const
 	return intersection;
 }
 
-void Mesh::Transform()
+void TriangleMesh::Transform()
 {
+	// Transform Vertices.
 	m_pos = m_transf * m_pos;
+	for(vec4& pos : m_buffers.positions)
+		pos = m_transf * pos;
+
+	// Transform Normals.
+	for (vec3& norm : m_buffers.normals)
+		norm = normalize(transpose(inverse(mat3(m_transf))) * norm);
+
 	for (Triangle& tri : m_triangles)
-	{
 		tri.Transform(m_transf);
-	}
+
 	UpdateBounds();
 }
 
-void Mesh::SetTriangles(std::vector<Triangle> triangles)
+void TriangleMesh::SetTriangles(std::vector<ivec3> indices)
 {
-	m_triangles = triangles;
+	for (ivec3 triIndices : indices)
+		m_triangles.push_back(Triangle(triIndices.x, triIndices.y, triIndices.z, &m_buffers));
+
 	UpdateBounds();
 }
 
-void Mesh::UpdateBounds()
+void TriangleMesh::UpdateBounds()
 {
 	for (Triangle& tri : m_triangles)
 	{
