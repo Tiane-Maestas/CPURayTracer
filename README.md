@@ -8,6 +8,8 @@
  - Multiple Directional and/or Point Lights
  - Diffuse and Specular Materials
  - Specular Reflections
+ - Skybox (Sphere and Cube Maps)
+ - Textures
  - Perfect Mirror Reflections
  - Custom Scene File Parser
 

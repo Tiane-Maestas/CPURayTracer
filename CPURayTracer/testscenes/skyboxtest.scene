@@ -6,9 +6,9 @@ matType Mirror
 sph 0.0 0.0 0.0 1.0
 
 # skybox testscenes/skyboxes/earth-space-skybox jpeg
-# skybox testscenes/skyboxes/above-sunset png
+skybox testscenes/skyboxes/above-sunset png
 # skybox testscenes/skyboxes/anime-sunset png
 # skybox testscenes/skyboxes/space-nebula png
 # skybox testscenes/skyboxes/above-sunset-spheremap png
 # skybox testscenes/skyboxes/anime-sunset-spheremap png
- skybox testscenes/skyboxes/space-nebula-spheremap png
+# skybox testscenes/skyboxes/space-nebula-spheremap png
