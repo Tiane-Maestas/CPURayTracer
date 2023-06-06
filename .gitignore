@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Large Files
+.\CPURayTracer\testscenes\skyboxes\above-sunset-spheremap
+.\CPURayTracer\testscenes\skyboxes\anime-sunset-spheremap

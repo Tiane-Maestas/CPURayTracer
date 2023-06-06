@@ -34,6 +34,8 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
 
         MaterialType currMatType = MaterialType::Normal;
 
+        std::string currTextureFilepath = "None";
+
         float attenuation[3] = { 1, 0, 0 }; // No attenuation by default.
 
         std::string line, cmd;
@@ -92,8 +94,9 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
                         sph->UpdateMaterial(mat);
-
+                        
                         sph->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(sph);
                     }
@@ -114,6 +117,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
                         elp->UpdateMaterial(mat);
 
                         elp->UpdateTransform(transfstack.top());
@@ -169,6 +173,7 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
                         mesh->UpdateMaterial(mat);
 
                         mesh->UpdateTransform(transfstack.top());
@@ -266,14 +271,18 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                     else
                         currMatType = MaterialType::Normal;
                 }
+                else if (cmd == "texture")
+                {
+                    cmdParams >> currTextureFilepath;
+                }
                 else if (cmd == "skybox") 
                 {
                     m_options.UseSkyBox = true;
                     std::string filepath; cmdParams >> filepath; cmdParams >> cmd;
                     if(cmd == "jpeg")
-                        scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath, EnviornmentMap::SkyboxType::Cube);
+                        scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath);
                     else
-                        scene->skybox = EnviornmentMap::Skybox(FIF_PNG, filepath, EnviornmentMap::SkyboxType::Cube);
+                        scene->skybox = EnviornmentMap::Skybox(FIF_PNG, filepath);
                 }
                 else if (cmd == "translate") // Below are Transformations.
                 {

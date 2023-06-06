@@ -59,3 +59,10 @@ void Image::Save(std::string filename)
 	FIBITMAP* img = FreeImage_ConvertFromRawBits(imagePixels, m_width, m_height, 3 * m_width, 24, 0xFF0000, 0x00FF00, 0x0000FF, false); // If false then bottom left orign.
 	FreeImage_Save(FIF_PNG, img, filename.c_str(), 0);
 }
+
+const vec3& Image::QueryTexture(float u, float v) const
+{
+	int x = m_width * u;//* glm::mod(m_uscale * u + m_uoffset, 1.0f);
+	int y = m_height * v;//* glm::mod(m_vscale * v + m_voffset, 1.0f);
+	return (y * m_width + x > m_pixels.size()) ? m_pixels[m_pixels.size() - 1] : m_pixels[y * m_width + x];
+}

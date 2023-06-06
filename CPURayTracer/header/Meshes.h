@@ -22,7 +22,7 @@ public:
 	void Transform(const mat4& transf);
 private:
 	int m_indexA, m_indexB, m_indexC; // Indices of vertex information stored in mesh buffers.
-	TriangleMeshBuffers* m_buffers = nullptr;
+	TriangleMeshBuffers* m_buffers = nullptr; // Points to the buffers of this triangles parent mesh.
 	vec3 m_normal = vec3(0.0); // Plane Normal
 	virtual void UpdateBounds();
 };

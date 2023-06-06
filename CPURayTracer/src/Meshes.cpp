@@ -97,7 +97,7 @@ void Triangle::Transform(const mat4& transf)
 
 Intersection TriangleMesh::Intersect(const Ray& ray) const
 {
-	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
+	Intersection intersection = { ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), &m_material };
 	if (!UseBVHAcceleration)
 	{
 		for (const Triangle& tri : m_triangles)
@@ -112,7 +112,7 @@ Intersection TriangleMesh::Intersect(const Ray& ray) const
 		intersection = m_bvh.Intersect(ray);
 	}
 	
-	intersection.material = m_material; // Triangles don't have access to the mateiral.
+	intersection.material = &m_material; // Triangles don't have access to the mateiral.
 	return intersection;
 }
 
@@ -168,6 +168,14 @@ void TriangleMesh::UpdateBounds()
 	m_bvh.QuickSetup(intersectables);
 }
 
+// Helper for calculating sphere UV
+vec2 GetSphereUV(const vec3& normal) 
+{
+	double theta = acos(1.0 * normal.y);
+	double phi = atan2(-1.0 * normal.z, normal.x) + pi;
+	return vec2(phi / (2.0 * pi), theta / pi);
+}
+
 Intersection Sphere::Intersect(const Ray& ray) const
 {
 	if (RenderingStatistics::SaveStatistics)
@@ -189,7 +197,7 @@ Intersection Sphere::Intersect(const Ray& ray) const
 			float t = -0.5 * b / a;
 
 			vec4 pos = ray.At(t);
-			return Intersection{ ray, pos, normalize(pos - m_pos), vec2(0.0), m_material };
+			return Intersection{ ray, pos, normalize(pos - m_pos), GetSphereUV(normalize(pos - m_pos)), &m_material};
 		}
 		else
 		{
@@ -201,14 +209,14 @@ Intersection Sphere::Intersect(const Ray& ray) const
 				t1 = std::min(t1, t2);
 
 				vec4 pos = ray.At(t1);
-				return Intersection{ ray, pos, normalize(pos - m_pos), vec2(0.0), m_material };
+				return Intersection{ ray, pos, normalize(pos - m_pos), GetSphereUV(normalize(pos - m_pos)), &m_material };
 			}
 			else if (t1 < 0) // Inside Sphere case 1.
 			{
 				if (t2 > 0)
 				{
 					vec4 pos = ray.At(t2);
-					return Intersection{ ray, pos, normalize(pos - m_pos), vec2(0.0), m_material };
+					return Intersection{ ray, pos, normalize(pos - m_pos), GetSphereUV(normalize(pos - m_pos)), &m_material };
 				}
 			}
 			else if (t2 < 0) // Inside Sphere case 2.
@@ -216,13 +224,13 @@ Intersection Sphere::Intersect(const Ray& ray) const
 				if (t1 > 0)
 				{
 					vec4 pos = ray.At(t1);
-					return Intersection{ ray, pos, normalize(pos - m_pos), vec2(0.0), m_material };
+					return Intersection{ ray, pos, normalize(pos - m_pos), GetSphereUV(normalize(pos - m_pos)), &m_material };
 				}
 			} // Two negative roots the sphere is behind.
 		}
 	}
 
-	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
+	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), &m_material };
 }
 
 void Sphere::Transform()
@@ -263,7 +271,7 @@ Intersection Ellipsoid::Intersect(const Ray& ray) const
 
 			// Transform ray hit back to world coordintes but not normal.
 			vec4 pos = rayCopy.At(t);
-			return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), vec2(0.0), m_material };
+			return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), GetSphereUV(normalize(pos - m_pos)), &m_material };
 		}
 		else
 		{
@@ -276,7 +284,7 @@ Intersection Ellipsoid::Intersect(const Ray& ray) const
 
 				// Transform ray hit back to world coordintes but not normal.
 				vec4 pos = rayCopy.At(t1);
-				return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), vec2(0.0), m_material };
+				return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), GetSphereUV(normalize(pos - m_pos)), &m_material };
 			}
 			else if (t1 < 0) // Inside Sphere case 1.
 			{
@@ -284,7 +292,7 @@ Intersection Ellipsoid::Intersect(const Ray& ray) const
 				{
 					// Transform ray hit back to world coordintes but not normal.
 					vec4 pos = rayCopy.At(t2);
-					return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), vec2(0.0), m_material };
+					return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), GetSphereUV(normalize(pos - m_pos)), &m_material };
 				}
 			}
 			else if (t2 < 0) // Inside Sphere case 2.
@@ -293,13 +301,13 @@ Intersection Ellipsoid::Intersect(const Ray& ray) const
 				{
 					// Transform ray hit back to world coordintes but not normal.
 					vec4 pos = rayCopy.At(t1);
-					return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), vec2(0.0), m_material };
+					return Intersection{ ray, (m_transf * pos), normalize(transpose(inverse(mat3(m_transf))) * (pos - m_pos)), GetSphereUV(normalize(pos - m_pos)), &m_material };
 				}
 			} // Two negative roots the sphere is behind.
 		}
 	}
 
-	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), m_material };
+	return Intersection{ ray, vec4(FLT_MAX), vec3(0.0), vec2(0.0), &m_material };
 }
 
 void Ellipsoid::UpdateBounds()

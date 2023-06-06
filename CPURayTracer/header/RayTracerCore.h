@@ -17,13 +17,16 @@ private:
 	vec4 m_dir;
 };
 
+// Note: Material is a pointer since copying textures is costly. 
+// This can be avoided if you pass intersections by reference instead of returning them as a value.
+// However, I just like the way returning by value feels so I went this way.
 struct Intersection
 {
 	Ray ray;
 	vec4 hitPos;
 	vec3 normal;
 	vec2 uv;
-	Material material;
+	const Material* material;
 };
 
 // Axis-Aligned Bounding Box for acceleration.
@@ -65,6 +68,6 @@ protected:
 	std::string m_name;
 	vec4 m_pos = vec4(0.0);
 	mat4 m_transf = mat4(1.0);
-	// Specifies how to color object with no texture.
+	// Specifies how to color object.
 	Material m_material;
 };

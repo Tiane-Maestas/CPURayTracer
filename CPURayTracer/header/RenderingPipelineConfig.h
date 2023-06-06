@@ -21,6 +21,8 @@ typedef glm::vec3 vec3;
 typedef glm::ivec3 ivec3;
 typedef glm::vec4 vec4;
 
+const double pi = 3.14159265358979323846;
+
 const bool UseBVHAcceleration = true;
 
 enum ThreadAmount 

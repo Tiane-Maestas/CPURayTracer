@@ -6,7 +6,7 @@ namespace EnviornmentMap
 {
 	enum SkyboxType
 	{
-		Cube, // 6 enviornment textures (+x, -x, +y, -y, +z, -z)
+		Cube, // 6 enviornment textures (+z, -z, +x, -x, +y, -y)
 		Sphere // 1 enviornment texture
 	};
 
@@ -14,7 +14,7 @@ namespace EnviornmentMap
 	{
 	public:
 		Skybox() {}
-		Skybox(FREE_IMAGE_FORMAT fif, std::string filepath, SkyboxType type);
+		Skybox(FREE_IMAGE_FORMAT fif, std::string filepath);
 		vec3 Query(vec3 direction);
 	private:
 		SkyboxType m_type = SkyboxType::Cube;
