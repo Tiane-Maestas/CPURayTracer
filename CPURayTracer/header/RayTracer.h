@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "Image.h"
+#include "../header/Random.h"
 
 struct PixelBlock 
 {
@@ -16,10 +17,7 @@ public:
 	// Getters
 	void Join() { m_thread->join(); }
 	// Setters
-	void SetDefaultColor(vec4 defaultColor) { m_defaultColor = defaultColor; }
-	void SetRayDepth(int maxRayDepth) { m_maxRayDepth = maxRayDepth; }
-	void SetRaysPerPixel(int raysPerPixel) { m_raysPerPixel = raysPerPixel; }
-	void UseSkyBox(bool useSkyBox) { m_useSkyBox = useSkyBox; }
+	void UpdateOptions(RenderingOptions options);
 	// Constructs a byte array in 'm_imagePixels' as the traced image on the main thread.
 	void TraceImage(Scene* scene, const PixelBlock& block);
 	// Constructs a byte array in 'm_imagePixels' as the traced image on a seperate thread.
@@ -37,6 +35,7 @@ private:
 	int m_maxRayDepth = 5;
 	int m_raysPerPixel = 1;
 	bool m_useSkyBox = true;
+	std::mt19937 m_randomGenerator;
 	// This will construct the 'm_imagePixels' from a seperate thread and a list of blocks.
 	void TraceThreadedImage(Scene* scene, const std::vector<PixelBlock>& blocks);
 	// Builds a Ray given the scene's camera and the x and y pixel of the image.

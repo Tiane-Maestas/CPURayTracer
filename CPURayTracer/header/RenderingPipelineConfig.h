@@ -39,7 +39,7 @@ struct RenderingOptions
 	uint32_t ImageWidth = 640;
 	uint32_t ImageHeight = 480;
 	uint32_t MaxRayDepth = 5;
-	uint32_t RaysPerPixel = 5;
+	uint32_t RaysPerPixel = 1;
 	ThreadAmount NumberOfUsedThreads = ThreadAmount::Maximum;
 	std::string OutputFileName = "RenderedImage.png";
 	vec3 BackgroundColor = vec3(0, 0, 0);

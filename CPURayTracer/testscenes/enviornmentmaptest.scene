@@ -1,0 +1,16 @@
+size 1920 1080 
+output enviornmentlighting.png
+camera 5 0 0 0 0 0 0 1 0 60
+
+spp 250
+
+diffuse 1 1 1 
+# specular 1 1 1
+# shininess 25
+sph 0.0 0.0 0.0 1.0
+
+# skybox testscenes/skyboxes/earth-space-skybox jpeg
+skybox testscenes/skyboxes/above-sunset png
+# skybox testscenes/skyboxes/anime-sunset png
+# skybox testscenes/skyboxes/space-nebula png
+# skybox testscenes/skyboxes/space-nebula-spheremap png

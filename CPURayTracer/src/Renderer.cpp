@@ -41,7 +41,7 @@ void Renderer::RenderScene()
 	if (m_numThreads == 0) // Run on the main thread.
 	{
 		RayTracer rayTracer(&m_image, (float)m_options.ImageWidth, (float)m_options.ImageHeight);
-		rayTracer.UseSkyBox(m_options.UseSkyBox);
+		rayTracer.UpdateOptions(m_options);
 		PixelBlock block{ 0, 0, m_options.ImageWidth, m_options.ImageHeight };
 		rayTracer.TraceImage(m_scene.get(), block);
 		return;
@@ -52,7 +52,7 @@ void Renderer::RenderScene()
 	for (uint32_t i = 0; i < m_numThreads; i++)
 	{
 		rayTracers.push_back(RayTracer(&m_image, (float)m_options.ImageWidth, (float)m_options.ImageHeight));
-		rayTracers[i].UseSkyBox(m_options.UseSkyBox);
+		rayTracers[i].UpdateOptions(m_options);
 	}
 
 	// Reserve a list of blocks for each thread.

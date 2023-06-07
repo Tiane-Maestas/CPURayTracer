@@ -7,18 +7,32 @@ RayTracer::RayTracer(Image* imagePixels, float width, float height)
 	m_imageHeight = height;
 }
 
+void RayTracer::UpdateOptions(RenderingOptions options)
+{
+	m_defaultColor = options.BackgroundColor; 
+	m_maxRayDepth = options.MaxRayDepth;
+	m_raysPerPixel = options.RaysPerPixel;
+	m_useSkyBox = options.UseSkyBox;
+}
+
 // ---Main Logic Loop---
 void RayTracer::TraceImage(Scene* scene, const PixelBlock& block)
 {
-	int pixel = 3 * (block.xMin + (block.yMin * m_imageWidth));
 	for (int y = block.yMin; y < block.yMax; y++)
 	{
 		for (int x = block.xMin; x < block.xMax; x++)
 		{
-			Ray ray = RayThroughPixel(scene, 0.5f + x, 0.5f + y);
-			Intersection intersection = FindIntersection(scene, ray);
-			vec3 col = FindColor(scene, intersection, 0);
-			(*m_imagePixels)(x, y) = col;
+			vec3 pixelCol(0.0f);
+			for (int i = 0; i < m_raysPerPixel; i++)
+			{
+				float xoffset = (i == 0) ? 0.5f : random_float(m_randomGenerator);
+				float yoffset = (i == 0) ? 0.5f : random_float(m_randomGenerator);
+				Ray ray = RayThroughPixel(scene, x + xoffset, y + yoffset);
+				Intersection intersection = FindIntersection(scene, ray);
+				pixelCol += FindColor(scene, intersection, 0);
+			}
+
+			(*m_imagePixels)(x, y) = pixelCol / (float)m_raysPerPixel;
 		}
 	}
 }
@@ -139,6 +153,38 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 				vec4 half = normalize(direction + towardsRayOrigin); // The vector halfway between the ray origin and light.
 				currentColor += ComputeColor(direction, intersection.normal, half, point->color, *intersection.material, point->attenuation, point->intensity, length(toLight));
 			}
+		}
+	}
+
+	// Add color from enviornment maps.
+	if (m_useSkyBox)
+	{
+		// Uniform Random Sample an outgoing direction on cosine weighted hemisphere.
+		float r1 = random_float(m_randomGenerator);
+		float r2 = random_float(m_randomGenerator);
+		float z = sqrt(1 - r2);
+		float phi = 2 * pi * r1;
+		float x = cos(phi) * sqrt(r2);
+		float y = sin(phi) * sqrt(r2);
+
+		vec3 direction(x, y, z);
+
+		// Convert to surface normal basis.
+		vec3 u, v, w;
+		w = intersection.normal;
+		v = (fabs(w.x) > 0.9f) ? vec3(0.0f, 1.0f, 0.0f) : vec3(1.0f, 0.0f, 0.0f);
+		v = normalize(cross(w, v));
+		u = cross(w, v);
+
+		direction = normalize(direction.x * u + direction.y * v + direction.z * w);
+
+		// Don't add light color if there is an object blocking it's view of the light. (Shadows)
+		Ray shadowRay(intersection.hitPos + 0.001f * vec4(direction, 0.0f), direction); // Account for shadow acne.
+		Intersection shadowIntersection = FindIntersection(scene, shadowRay);
+		if (shadowIntersection.hitPos == vec4(FLT_MAX)) // Direction lights only have one check becuase they have no position.
+		{
+			vec4 half = normalize(vec4(direction, 0.0f) + towardsRayOrigin); // The vector halfway between the ray origin and light.
+			currentColor += ComputeColor(direction, intersection.normal, half, scene->skybox.Query(direction), *intersection.material, Directional::attenuation, 1.0f, 0.0f);
 		}
 	}
 

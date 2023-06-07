@@ -66,6 +66,14 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                         m_options.MaxRayDepth = (int)params[0];
                     }
                 }
+                else if (cmd == "spp") // Set Samples per Pixel.
+                {
+                    bool validinput = ReadCommandParameters(cmdParams, 1, params); // spp 
+                    if (validinput)
+                    {
+                        m_options.RaysPerPixel = (int)params[0];
+                    }
+                }
                 else if (cmd == "output") // Set Output File Name.
                 {
                     cmdParams >> m_options.OutputFileName;

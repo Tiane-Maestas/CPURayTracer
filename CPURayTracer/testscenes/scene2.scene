@@ -1,5 +1,6 @@
 size 1920 1080 
-maxdepth 4
+maxdepth 5
+spp 5
 output scene2.png
 camera 6 1.5 6 0 0 0 0 1 0 30
 #directional 1 0 -1 1 1 1 

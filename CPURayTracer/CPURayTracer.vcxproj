@@ -180,6 +180,7 @@
     <ClInclude Include="header\Lights.h" />
     <ClInclude Include="header\Materials.h" />
     <ClInclude Include="header\Meshes.h" />
+    <ClInclude Include="header\Random.h" />
     <ClInclude Include="header\RayTracer.h" />
     <ClInclude Include="header\RayTracerCore.h" />
     <ClInclude Include="header\Renderer.h" />

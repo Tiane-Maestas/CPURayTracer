@@ -9,6 +9,7 @@
  - Diffuse and Specular Materials
  - Specular Reflections
  - Skybox (Sphere and Cube Maps)
+ - Enviornment Lighting from Skybox
  - Textures
  - Perfect Mirror Reflections
  - Custom Scene File Parser
