@@ -12,6 +12,7 @@
  - Enviornment Lighting from Skybox
  - Textures
  - Perfect Mirror Reflections
+ - Antialiasing w/ Multiple Samples per Pixel
  - Custom Scene File Parser
 
 ## Acceleration
