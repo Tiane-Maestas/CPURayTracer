@@ -21,6 +21,7 @@ void Scene::TransformObjects()
 		light->Transform();
 	}
 	camera.Transform();
+
 	// Must Re-Build the database anytime the scene is updated in case bounding boxes change.
 	BuildAccelratedDatabase();
 }

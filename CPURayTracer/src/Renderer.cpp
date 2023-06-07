@@ -30,11 +30,8 @@ void Renderer::RenderScene()
 	// First update the camera fov in the x-direction by the world aspect ratio.
 	m_scene->camera.SetFOV((float)m_options.ImageWidth, (float)m_options.ImageHeight);
 
-	// Transform objects if needed.
+	// Transform objects if needed. (This also updates scene and mesh BVHs)
 	m_scene->TransformObjects();
-
-	// Prepare Acceleration.	
-	m_scene.get()->BuildAccelratedDatabase();
 
 	Timer traceImage("TraceImage");
 

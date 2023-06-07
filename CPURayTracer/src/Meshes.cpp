@@ -110,9 +110,9 @@ Intersection TriangleMesh::Intersect(const Ray& ray) const
 	else 
 	{
 		intersection = m_bvh.Intersect(ray);
+		intersection.material = &m_material; // Triangles don't have access to the mateiral.
 	}
-	
-	intersection.material = &m_material; // Triangles don't have access to the mateiral.
+
 	return intersection;
 }
 
@@ -161,7 +161,7 @@ void TriangleMesh::UpdateBounds()
 	}
 
 	// Anytime bounds are updated you have to Re-Build the BVH.
-	Timer bvhBuild("Build " + m_name + " BVH");
+	Timer bvhBuild("Build/Rebuild Mesh " + m_name + " BVH");
 	std::vector<Intersectable*> intersectables = std::vector<Intersectable*>();
 	for (Triangle& tri : m_triangles)
 		intersectables.push_back(&tri);
