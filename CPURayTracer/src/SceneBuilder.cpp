@@ -112,7 +112,7 @@ std::shared_ptr<TriangleMesh> parse_obj_file(std::string filepath)
         // Exclude Comments and Blank Lines.
         if ((line.find_first_not_of(" \t\r\n") == std::string::npos) || (line[0] == '#'))
             continue;
-        
+
         std::stringstream cmdParams(line);
         cmdParams >> cmd;
 
@@ -147,9 +147,9 @@ std::shared_ptr<TriangleMesh> parse_obj_file(std::string filepath)
             int v1id = get_vertex_id(v1, meshBufferPool, meshBuffers, vertex_map);
             int v2id = get_vertex_id(v2, meshBufferPool, meshBuffers, vertex_map);
             meshIndices.push_back(ivec3(v0id, v1id, v2id));
-            
+
             std::string i3; // 4 vertex face polygons.
-            if (cmdParams >> i3) 
+            if (cmdParams >> i3)
             {
                 std::vector<int> v3i = split_face_str(i3); // v, vt, vn
                 ObjVertex v3(v3i);
@@ -158,14 +158,14 @@ std::shared_ptr<TriangleMesh> parse_obj_file(std::string filepath)
             }
 
             std::string i4;
-            if (cmdParams >> i4) 
+            if (cmdParams >> i4)
                 std::cout << "Error: .obj file is not formatted as triangle or plane face." << std::endl;
         }
     }
 
-    std::filesystem::path path();
-    //std::string filename = path.filename().string(); // "file"
-    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(meshBuffers, "TODO");
+    // std::filesystem::path test(filepath.c_str());
+    // std::string filename = path.stem().string();
+    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(meshBuffers, filepath);
     mesh->SetTriangles(meshIndices);
     return mesh;
 }

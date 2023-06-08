@@ -17,7 +17,7 @@
  - .obj File Support
 
 ## Acceleration
-<img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/Dragon.png'/>
+<img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/FinalDragon.png'/>
 
  - Multithreading
  - Scene & Mesh Bounding Volume Hierarchy
