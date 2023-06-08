@@ -4,8 +4,8 @@ camera 5 0 0 0 0 0 0 1 0 60
 
 spp 250
 
-diffuse 1 1 1 
-# specular 1 1 1
+diffuse 0.7 0.7 1
+# specular 0.7 0.7 0.7
 # shininess 25
 sph 0.0 0.0 0.0 1.0
 

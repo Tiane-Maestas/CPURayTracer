@@ -484,11 +484,14 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                 {
                     cmdParams >> currTextureFilepath;
                 }
-                else if (cmd == "skybox") 
+                else if (cmd == "skybox")  // filepath, inensity (optional)
                 {
                     m_options.UseSkyBox = true;
-                    std::string filepath; cmdParams >> filepath; cmdParams >> cmd;
+                    std::string filepath; cmdParams >> filepath;
                     scene->skybox = EnviornmentMap::Skybox(currImageFormat, filepath);
+                    float intensity; cmdParams >> intensity;
+                    if (!cmdParams.fail())
+                        scene->skybox.intensity = intensity;
                 }
                 else if (cmd == "translate") // Below are Transformations.
                 {

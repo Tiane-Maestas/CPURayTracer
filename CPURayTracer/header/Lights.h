@@ -21,7 +21,6 @@ protected:
 class Point : public Light 
 {
 public:
-	// Design choice to not use protected varibales for performance reasons.
 	float intensity = 1.0f;
 	vec3 attenuation = vec3(0, 0, 1); // Const, linear, quadratic.
 	Point(float x, float y, float z, float r, float g, float b) : Light(x, y, z, r, g, b) {}

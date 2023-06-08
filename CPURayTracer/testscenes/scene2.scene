@@ -3,13 +3,14 @@ maxdepth 5
 spp 50
 output scene2.png
 camera 6 1.5 6 0 0 0 0 1 0 30
-#directional 1 0 -1 1 1 1 
-#directional -1 0 1 1 1 1 
+# directional 1 0 -1 1 1 1 
+# directional -1 0 1 1 1 1 
 # This one point light without the skybox was the origonal image.
-#point 3 3 3 1 1 1
+# point 3 3 3 1 1 1
 
 imageformat PNG
-skybox testscenes/skyboxes/space-nebula-spheremap
+skybox testscenes/skyboxes/space-nebula-spheremap 0.31 
+# I allow for custom skybox intensity as shown above. (I just liked it better without PDF)
 
 # Sphere
 diffuse 0 0 0 
@@ -85,7 +86,7 @@ popTransform
 #matType Mirror
 #ambient 1.0 1.0 1.0
 
-diffuse 0.1 0.1 0.1 
+diffuse 0.2 0.2 0.2 
 specular .7 .7 1
 shininess 25
 pushTransform

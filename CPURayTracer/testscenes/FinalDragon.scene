@@ -4,10 +4,10 @@ camera 5 0 0 0 0 0 0 1 0 60
 spp 50
 
 imageformat PNG
-# skybox testscenes/skyboxes/above-night
+skybox testscenes/skyboxes/above-night
 # skybox testscenes/skyboxes/above-sunset-2
 # skybox testscenes/skyboxes/above-sunset
-skybox testscenes/skyboxes/above-midday
+# skybox testscenes/skyboxes/above-midday
 
 diffuse 1.0 1.0 1.0
 

@@ -92,10 +92,12 @@ Intersection RayTracer::FindIntersection(Scene* scene, const Ray& ray)
 }
 
 // Helper function for 'FindColor'
-vec3 ComputeColor(const vec3& direction, const vec3& normal, const vec3& halfvec, const vec3& color, const Material& material, const vec3& attenuation, const float intensity, const float distance)
+vec3 ComputeColor(const vec3& direction, const vec3& normal, const vec3& halfvec, const vec3& color, const Material& material, const vec2& uv, const vec3& attenuation, const float intensity, const float distance)
 {
 	float nDotL = dot(normal, direction);
 	vec3 lambert = material.diffuse * color * std::max(nDotL, 0.0f);
+	if (material.texture.HasImage())
+		lambert = material.texture.QueryTexture(uv.x, uv.y) * color * std::max(nDotL, 0.0f);
 
 	float nDotH = dot(normal, halfvec);
 	vec3 phong = material.specular * color * pow(std::max(nDotH, 0.0f), material.shininess);
@@ -119,8 +121,6 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 	}
 
 	vec3 currentColor = intersection.material->ambient + intersection.material->emission;
-	if (intersection.material->texture.HasImage())
-		return intersection.material->texture.QueryTexture(intersection.uv.x, intersection.uv.y);
 
 	// Add color from the lights.
 	vec4 towardsRayOrigin = normalize(intersection.ray.GetPosition() - intersection.hitPos); // Vector to origin of ray cast. Needed for half vector.
@@ -136,7 +136,7 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 			if (shadowIntersection.hitPos == vec4(FLT_MAX)) // Direction lights only have one check becuase they have no position.
 			{
 				vec4 half = normalize(direction + towardsRayOrigin); // The vector halfway between the ray origin and light.
-				currentColor += ComputeColor(direction, intersection.normal, half, directional->color, *intersection.material, Directional::attenuation, 1.0f, 0.0f);
+				currentColor += ComputeColor(direction, intersection.normal, half, directional->color, *intersection.material, intersection.uv, Directional::attenuation, 1.0f, 0.0f);
 			}
 		}
 		else if (Point* point = dynamic_cast<Point*>(light.get()))
@@ -151,7 +151,7 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 			if (shadowIntersection.hitPos == vec4(FLT_MAX) || length(point->GetPosition() - shadowRay.GetPosition()) < length(shadowIntersection.hitPos - shadowRay.GetPosition()))
 			{
 				vec4 half = normalize(direction + towardsRayOrigin); // The vector halfway between the ray origin and light.
-				currentColor += ComputeColor(direction, intersection.normal, half, point->color, *intersection.material, point->attenuation, point->intensity, length(toLight));
+				currentColor += ComputeColor(direction, intersection.normal, half, point->color, *intersection.material, intersection.uv, point->attenuation, point->intensity, length(toLight));
 			}
 		}
 	}
@@ -178,13 +178,15 @@ vec3 RayTracer::FindColor(Scene* scene, const Intersection& intersection, int re
 
 		direction = normalize(direction.x * u + direction.y * v + direction.z * w);
 
+		float PDF = dot(w, direction) / pi;
+
 		// Don't add light color if there is an object blocking it's view of the light. (Shadows)
 		Ray shadowRay(intersection.hitPos + 0.001f * vec4(direction, 0.0f), direction); // Account for shadow acne.
 		Intersection shadowIntersection = FindIntersection(scene, shadowRay);
 		if (shadowIntersection.hitPos == vec4(FLT_MAX)) // Direction lights only have one check becuase they have no position.
 		{
 			vec4 half = normalize(vec4(direction, 0.0f) + towardsRayOrigin); // The vector halfway between the ray origin and light.
-			currentColor += ComputeColor(direction, intersection.normal, half, scene->skybox.Query(direction), *intersection.material, Directional::attenuation, 1.0f, 0.0f);
+			currentColor += ComputeColor(direction, intersection.normal, half, scene->skybox.Query(direction), *intersection.material, intersection.uv, Directional::attenuation, scene->skybox.intensity / PDF, 0.0f);
 		}
 	}
 

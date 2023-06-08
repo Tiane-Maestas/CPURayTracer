@@ -16,6 +16,7 @@ namespace EnviornmentMap
 		Skybox() {}
 		Skybox(FREE_IMAGE_FORMAT fif, std::string filepath);
 		vec3 Query(vec3 direction);
+		float intensity = 1.0f; // Allows manual adjustments.
 	private:
 		SkyboxType m_type = SkyboxType::Cube;
 		std::vector<Image> m_enviornmentTextures;
