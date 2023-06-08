@@ -4,7 +4,7 @@
 ## Current Features 
  - Full Triangle Meshes
  - Default Sphere, Ellipsoid Mesh
- - Flat Shading
+ - Flat vs Smooth Normal Shading
  - Multiple Directional and/or Point Lights
  - Diffuse and Specular Materials
  - Specular Reflections
@@ -14,6 +14,7 @@
  - Perfect Mirror Reflections
  - Antialiasing w/ Multiple Samples per Pixel
  - Custom Scene File Parser
+ - .obj File Support
 
 ## Acceleration
 <img src='https://github.com/Tiane-Maestas/CPURayTracer/blob/master/CPURayTracer/Dragon.png'/>
