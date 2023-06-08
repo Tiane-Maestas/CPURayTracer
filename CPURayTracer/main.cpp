@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 
 	const char* sceneFile = argv[1];
 
-	CustomSceneBuilder sceneBuilder;
+	MyCustomSceneBuilder sceneBuilder;
 	std::shared_ptr<Scene> scene = sceneBuilder.BuildFromFile(sceneFile);
 	if (scene == nullptr) { exit(1); }
 	

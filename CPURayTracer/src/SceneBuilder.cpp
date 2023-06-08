@@ -1,6 +1,176 @@
+// Disclaimer: All Parsing in this file largely follows my schools (UCSD) parser in CSE 167 and 168.
+// However, I have adapted them to fit my renderer format.
 #include "../header/SceneBuilder.h"
+#include <regex>
+#include <map>
 
-bool CustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, const int numparams, float* parameters)
+struct ObjVertex 
+{
+    int v, vt, vn;
+    ObjVertex(const std::vector<int>& id) : v(id[0]), vt(id[1]), vn(id[2]) {}
+
+    bool operator<(const ObjVertex& vertex) const 
+    {
+        if (v != vertex.v)
+            return v < vertex.v;
+
+        if (vt != vertex.vt)
+            return vt < vertex.vt;
+
+        if (vn != vertex.vn)
+            return vn < vertex.vn;
+
+        return false;
+    }
+};
+
+static std::vector<int> split_face_str(const std::string& s) 
+{
+    std::regex rgx("/");
+    std::sregex_token_iterator first{ begin(s), end(s), rgx, -1 }, last;
+    std::vector<std::string> list{ first, last };
+    std::vector<int> results;
+    for (std::string& i : list) 
+    {
+        if (i != "")
+            results.push_back(std::stoi(i));
+        else
+            results.push_back(0);
+    }
+
+    // If no index specified for v/vt/vn.
+    while (results.size() < 3)
+        results.push_back(0);
+
+    return results;
+}
+
+int get_vertex_id(const ObjVertex& vertex, const TriangleMeshBuffers& bufferPool, TriangleMeshBuffers& meshBuffers, std::map<ObjVertex, int>& vertex_map) 
+{
+    auto it = vertex_map.find(vertex);
+    if (it != vertex_map.end())
+        return it->second;
+
+    int id = meshBuffers.positions.size();
+    if (vertex.v > 0) 
+    {
+        // 1-based indexing to 0-based
+        meshBuffers.positions.push_back(bufferPool.positions[vertex.v - 1]);
+    }
+    else
+    {
+        // From Wikipedia (https://en.wikipedia.org/wiki/Wavefront_.obj_file):
+        // "If an index is negative then it relatively refers to the end of the vertex list, -1 referring to the last element."
+        int v = bufferPool.positions.size() + vertex.v;
+        meshBuffers.positions.push_back(bufferPool.positions[v]);
+    }
+
+    if (vertex.vt > 0) 
+    {
+        meshBuffers.uvs.push_back(bufferPool.uvs[vertex.vt - 1]);
+    }
+    else if (vertex.vt < 0) 
+    {
+        int vt = bufferPool.uvs.size() + vertex.vt;
+        meshBuffers.uvs.push_back(bufferPool.uvs[vt - 1]);
+    }
+
+    if (vertex.vn > 0) {
+        meshBuffers.normals.push_back(bufferPool.normals[vertex.vn - 1]);
+    }
+    else if (vertex.vn < 0) 
+    {
+        int vn = bufferPool.normals.size() + vertex.vn;
+        meshBuffers.normals.push_back(bufferPool.normals[vn]);
+    }
+
+    vertex_map[vertex] = id;
+    return id;
+}
+
+std::shared_ptr<TriangleMesh> parse_obj_file(std::string filepath)
+{
+    std::ifstream objfile;
+    objfile.open(filepath);
+    if (!objfile.is_open())
+    {
+        std::cerr << "Unable to Open Input .obj File: " << filepath << std::endl;
+        return std::make_shared<TriangleMesh>("None");
+    }
+
+    TriangleMeshBuffers meshBufferPool; // Intermediate storage for vertex data.
+    TriangleMeshBuffers meshBuffers; // Final Organized vertex data.
+    std::vector<ivec3> meshIndices;
+
+    std::map<ObjVertex, int> vertex_map;
+
+    while (objfile.good())
+    {
+        std::string line, cmd;
+        std::getline(objfile, line);
+
+        // Exclude Comments and Blank Lines.
+        if ((line.find_first_not_of(" \t\r\n") == std::string::npos) || (line[0] == '#'))
+            continue;
+        
+        std::stringstream cmdParams(line);
+        cmdParams >> cmd;
+
+        if (cmd == "v") // Vertex
+        {
+            float x, y, z, w = 1.0f;
+            cmdParams >> x >> y >> z >> w;
+            meshBufferPool.positions.push_back(vec4(x, y, z, w) / w);
+        }
+        else if (cmd == "vt") // Vertex Texture Coordinate
+        {
+            float u, v;
+            cmdParams >> u >> v;
+            meshBufferPool.uvs.push_back(vec2(u, v));
+        }
+        else if (cmd == "vn") // Vertex Normal
+        {
+            float x, y, z;
+            cmdParams >> x >> y >> z;
+            meshBufferPool.normals.push_back(normalize(vec3(x, y, z)));
+        }
+        else if (cmd == "f") // Face
+        {
+            std::string i0, i1, i2; // Index strings. (triangle polygons)
+            cmdParams >> i0 >> i1 >> i2;
+            std::vector<int> v0i = split_face_str(i0); // v, vt, vn
+            std::vector<int> v1i = split_face_str(i1); // v, vt, vn
+            std::vector<int> v2i = split_face_str(i2); // v, vt, vn
+
+            ObjVertex v0(v0i), v1(v1i), v2(v2i);
+            int v0id = get_vertex_id(v0, meshBufferPool, meshBuffers, vertex_map);
+            int v1id = get_vertex_id(v1, meshBufferPool, meshBuffers, vertex_map);
+            int v2id = get_vertex_id(v2, meshBufferPool, meshBuffers, vertex_map);
+            meshIndices.push_back(ivec3(v0id, v1id, v2id));
+            
+            std::string i3; // 4 vertex face polygons.
+            if (cmdParams >> i3) 
+            {
+                std::vector<int> v3i = split_face_str(i3); // v, vt, vn
+                ObjVertex v3(v3i);
+                int v3id = get_vertex_id(v3, meshBufferPool, meshBuffers, vertex_map);
+                meshIndices.push_back(ivec3(v0id, v2id, v3id));
+            }
+
+            std::string i4;
+            if (cmdParams >> i4) 
+                std::cout << "Error: .obj file is not formatted as triangle or plane face." << std::endl;
+        }
+    }
+
+    std::filesystem::path path();
+    //std::string filename = path.filename().string(); // "file"
+    std::shared_ptr<TriangleMesh> mesh = std::make_shared<TriangleMesh>(meshBuffers, "TODO");
+    mesh->SetTriangles(meshIndices);
+    return mesh;
+}
+
+bool MyCustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, const int numparams, float* parameters)
 {
     for (int i = 0; i < numparams; i++) {
         cmdParams >> parameters[i];
@@ -12,14 +182,15 @@ bool CustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, con
     return true;
 }
 
-std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
+std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
 {
     Timer sceneBuild("Parse Scene (including initial triangle mesh BVH consturction)");
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
     std::ifstream scenefile;
     scenefile.open(filename);
-    if (scenefile.is_open()) {
+    if (scenefile.is_open()) 
+    {
 
         // Matrix Stack for object transforms.
         std::stack<mat4> transfstack;
@@ -187,6 +358,27 @@ std::shared_ptr<Scene> CustomSceneBuilder::BuildFromFile(const char* filename)
                         mesh->UpdateTransform(transfstack.top());
                         scene->meshes.push_back(mesh);
                     }
+                }
+                else if (cmd == "OBJ") // Add mesh from .obj file.
+                {
+                    std::string filepath; cmdParams >> filepath;
+                    std::shared_ptr<TriangleMesh> mesh = parse_obj_file(filepath);
+
+                    Material mat;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        mat.ambient[i] = currAmbient[i];
+                        mat.diffuse[i] = currDiffuse[i];
+                        mat.specular[i] = currSpecular[i];
+                        mat.emission[i] = currEmission[i];
+                    }
+                    mat.shininess = currShininess;
+                    mat.type = currMatType;
+                    mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_JPEG, currTextureFilepath);
+                    mesh->UpdateMaterial(mat);
+
+                    mesh->UpdateTransform(transfstack.top());
+                    scene->meshes.push_back(mesh);
                 }
                 else if (cmd == "directional") // Add Lights to the Scene.
                 {

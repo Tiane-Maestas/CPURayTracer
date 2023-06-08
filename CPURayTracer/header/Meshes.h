@@ -31,6 +31,7 @@ private:
 class TriangleMesh : public Traceable
 {
 public:
+	TriangleMesh(std::string name) { m_name = name; }
 	TriangleMesh(TriangleMeshBuffers buffers, std::string name) { m_buffers = buffers; m_name = name; m_pos = buffers.positions[0]; }
 	virtual ~TriangleMesh() {}
 	// Traceable	

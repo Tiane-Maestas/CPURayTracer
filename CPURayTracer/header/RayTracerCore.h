@@ -52,6 +52,7 @@ protected:
 };
 
 // Any object that can be rendered to the scene must implement this interface.
+// Rendered objects must have a world position, transform, name, and material.
 class Traceable : public Intersectable
 {
 public:
@@ -68,6 +69,5 @@ protected:
 	std::string m_name;
 	vec4 m_pos = vec4(0.0);
 	mat4 m_transf = mat4(1.0);
-	// Specifies how to color object.
 	Material m_material;
 };

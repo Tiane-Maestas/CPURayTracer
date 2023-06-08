@@ -65,7 +65,7 @@ Intersection Triangle::Intersect(const Ray& ray) const
 	{
 		Intersection intersection = { ray, ray.At(t), m_normal, vec2(u, v), {} };
 		// Get Normals if user defined.
-		if (m_buffers->normals.size() == m_buffers->positions.size())
+		if (m_buffers->normals.size() == m_buffers->positions.size() && !FlatShadingOnly)
 		{
 			vec3 n0 = m_buffers->normals[m_indexA];
 			vec3 n1 = m_buffers->normals[m_indexB];

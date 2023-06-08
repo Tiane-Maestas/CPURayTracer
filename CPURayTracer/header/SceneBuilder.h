@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include "Timer.h"
 
+std::shared_ptr<TriangleMesh> parse_obj_file(std::string filepath);
+
 class SceneBuilder 
 {
 public:
@@ -14,7 +16,7 @@ protected:
 	RenderingOptions m_options;
 };
 
-class CustomSceneBuilder : public SceneBuilder
+class MyCustomSceneBuilder : public SceneBuilder
 {
 public:
 	std::shared_ptr<Scene> BuildFromFile(const char* filename);
