@@ -3,7 +3,11 @@ output FinalDragon.png
 camera 5 0 0 0 0 0 0 1 0 60
 spp 50
 
-skybox testscenes/skyboxes/above-sunset png
+imageformat PNG
+# skybox testscenes/skyboxes/above-night
+# skybox testscenes/skyboxes/above-sunset-2
+# skybox testscenes/skyboxes/above-sunset
+skybox testscenes/skyboxes/above-midday
 
 diffuse 1.0 1.0 1.0
 
@@ -11,6 +15,7 @@ pushTransform
 translate 2 -1 0
 scale 10 10 10
 rotate 0 1 0 45
-# texture testscenes/textures/brick.png
+imageformat png
+texture testscenes/textures/dragon.png
 OBJ testscenes/objects/dragon.obj
 popTransform

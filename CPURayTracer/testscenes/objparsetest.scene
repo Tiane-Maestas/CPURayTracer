@@ -18,7 +18,8 @@ diffuse 1.0 1.0 1.0
 # translate 0 -1 0
 # scale 0.035 0.035 0.035
 # rotate 0 1 0 90
-# texture testscenes/textures/default.png
+# imageformat PNG
+# texture testscenes/textures/brick.png
 # OBJ testscenes/objects/HDteapot.obj
 # popTransform
 
@@ -27,7 +28,8 @@ diffuse 1.0 1.0 1.0
 # translate 2 -1 0
 # scale 10 10 10
 # rotate 0 1 0 45
-# texture testscenes/textures/brick.png
+imageformat PNG
+# texture testscenes/textures/dragon.png
 # OBJ testscenes/objects/dragon.obj
 # popTransform
 
@@ -41,10 +43,10 @@ popTransform
 
 # Head Demo
 # pushTransform
-# translate 0 -1 0
+# translate 0 0 0
 # scale 8 8 8
 # rotate 0 1 0 90
-# Need to add .jpg option but does work when changed manually
+imageformat JPG
 # texture testscenes/textures/head.jpg
 # OBJ testscenes/objects/head.obj
 # popTransform

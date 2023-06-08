@@ -24,7 +24,7 @@ private:
 	// Attributes
 	uint32_t m_width = 0;
 	uint32_t m_height = 0;
-	FREE_IMAGE_FORMAT m_fif = FIF_PNG; // Only currently supports png and jpeg.
+	FREE_IMAGE_FORMAT m_fif = FIF_PNG;
 	bool m_hasImage = true;
 	// Texture attributes.
 	float m_uscale = 1.0f;

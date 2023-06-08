@@ -8,7 +8,8 @@ camera 6 1.5 6 0 0 0 0 1 0 30
 # This one point light without the skybox was the origonal image.
 #point 3 3 3 1 1 1
 
-skybox testscenes/skyboxes/space-nebula-spheremap png
+imageformat PNG
+skybox testscenes/skyboxes/space-nebula-spheremap
 
 # Sphere
 diffuse 0 0 0 

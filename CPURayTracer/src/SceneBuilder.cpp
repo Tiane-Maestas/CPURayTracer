@@ -206,6 +206,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
         MaterialType currMatType = MaterialType::Normal;
 
         std::string currTextureFilepath = "None";
+        FREE_IMAGE_FORMAT currImageFormat = FIF_PNG;
 
         float attenuation[3] = { 1, 0, 0 }; // No attenuation by default.
 
@@ -273,7 +274,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
-                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(currImageFormat, currTextureFilepath);
                         sph->UpdateMaterial(mat);
                         
                         sph->UpdateTransform(transfstack.top());
@@ -296,7 +297,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
-                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(currImageFormat, currTextureFilepath);
                         elp->UpdateMaterial(mat);
 
                         elp->UpdateTransform(transfstack.top());
@@ -352,7 +353,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                         }
                         mat.shininess = currShininess;
                         mat.type = currMatType;
-                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_PNG, currTextureFilepath);
+                        mat.texture = (currTextureFilepath == "None") ? Image() : Image(currImageFormat, currTextureFilepath);
                         mesh->UpdateMaterial(mat);
 
                         mesh->UpdateTransform(transfstack.top());
@@ -374,7 +375,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                     }
                     mat.shininess = currShininess;
                     mat.type = currMatType;
-                    mat.texture = (currTextureFilepath == "None") ? Image() : Image(FIF_JPEG, currTextureFilepath);
+                    mat.texture = (currTextureFilepath == "None") ? Image() : Image(currImageFormat, currTextureFilepath);
                     mesh->UpdateMaterial(mat);
 
                     mesh->UpdateTransform(transfstack.top());
@@ -471,6 +472,14 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                     else
                         currMatType = MaterialType::Normal;
                 }
+                else if (cmd == "imageformat")
+                {
+                    std::string format; cmdParams >> format;
+                    if (format == "PNG")
+                        currImageFormat = FIF_PNG;
+                    else if (format == "JPG")
+                        currImageFormat = FIF_JPEG;
+                }
                 else if (cmd == "texture")
                 {
                     cmdParams >> currTextureFilepath;
@@ -479,10 +488,7 @@ std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
                 {
                     m_options.UseSkyBox = true;
                     std::string filepath; cmdParams >> filepath; cmdParams >> cmd;
-                    if(cmd == "jpeg")
-                        scene->skybox = EnviornmentMap::Skybox(FIF_JPEG, filepath);
-                    else
-                        scene->skybox = EnviornmentMap::Skybox(FIF_PNG, filepath);
+                    scene->skybox = EnviornmentMap::Skybox(currImageFormat, filepath);
                 }
                 else if (cmd == "translate") // Below are Transformations.
                 {

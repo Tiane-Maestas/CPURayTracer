@@ -9,8 +9,10 @@ diffuse 1 1 1
 # shininess 25
 sph 0.0 0.0 0.0 1.0
 
-# skybox testscenes/skyboxes/earth-space-skybox jpeg
-skybox testscenes/skyboxes/above-sunset png
-# skybox testscenes/skyboxes/anime-sunset png
-# skybox testscenes/skyboxes/space-nebula png
-# skybox testscenes/skyboxes/space-nebula-spheremap png
+imageformat JPG
+# skybox testscenes/skyboxes/earth-space-skybox
+imageformat PNG
+skybox testscenes/skyboxes/above-sunset
+# skybox testscenes/skyboxes/anime-sunset
+# skybox testscenes/skyboxes/space-nebula
+# skybox testscenes/skyboxes/space-nebula-spheremap

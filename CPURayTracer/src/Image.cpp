@@ -9,13 +9,29 @@ Image::Image(FREE_IMAGE_FORMAT fif, std::string filepath)
 {
 	m_fif = fif;
 	FIBITMAP* bitmap = FreeImage_Load(fif, filepath.c_str());
+	if (!bitmap) 
+	{
+		std::cout << "Error When Loading Image: " << filepath << std::endl;
+		exit(1);
+	}
+
 	BYTE* imagePixels = FreeImage_GetBits(bitmap);
+	if (imagePixels == NULL)
+	{
+		std::cout << "Error When Retrieving Bits of Image: " << filepath << std::endl;
+		exit(1);
+	}
+
+	int pixelSize = FreeImage_GetBPP(bitmap);
+	int numOfColorChannels = pixelSize / 8;
 	m_width = FreeImage_GetWidth(bitmap);
 	m_height = FreeImage_GetHeight(bitmap);
 
 	// Populate m_pixels.
-	for (int pixel = 0; pixel < 3 * m_width * m_height; pixel += 3)
+	for (int pixel = 0; pixel < numOfColorChannels * m_width * m_height; pixel += numOfColorChannels)
 		m_pixels.push_back(TransformColorFromByte(imagePixels, pixel));
+
+	FreeImage_Unload(bitmap);
 }
 
 Image::Image(uint32_t width, uint32_t height)
