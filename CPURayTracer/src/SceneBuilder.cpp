@@ -184,6 +184,7 @@ bool MyCustomSceneBuilder::ReadCommandParameters(std::stringstream& cmdParams, c
 
 std::shared_ptr<Scene> MyCustomSceneBuilder::BuildFromFile(const char* filename)
 {
+    std::cout << "Building Scene..." << std::endl;
     Timer sceneBuild("Parse Scene (including initial triangle mesh BVH consturction)");
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 

@@ -50,7 +50,7 @@ struct RenderingOptions
 namespace RenderingStatistics
 {
 	static bool PrintTimers = true;
-	static bool SaveStatistics = false; // Significantly Impacts Performance.
+	static bool SaveStatistics = false; // Significantly Impacts Performance. (~ +4 seconds to FinalDragon scene)
 	extern std::atomic<uint64_t> RaysCasted;
 	extern std::atomic<uint64_t> NumTriTests;
 	extern std::atomic<uint64_t> NumSphTests;

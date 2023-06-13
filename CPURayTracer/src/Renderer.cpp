@@ -27,6 +27,8 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, RenderingOptions options)
 
 void Renderer::RenderScene()
 {
+	std::cout << "Rendering Scene..." << std::endl;
+
 	// First update the camera fov in the x-direction by the world aspect ratio.
 	m_scene->camera.SetFOV((float)m_options.ImageWidth, (float)m_options.ImageHeight);
 

@@ -12,7 +12,11 @@ int main(int argc, char* argv[])
 
 	MyCustomSceneBuilder sceneBuilder;
 	std::shared_ptr<Scene> scene = sceneBuilder.BuildFromFile(sceneFile);
-	if (scene == nullptr) { exit(1); }
+	if (scene == nullptr) 
+	{ 
+		std::cout << "Scene Construction Failed." << std::endl;
+		exit(1); 
+	}
 	
 	Renderer renderer(scene, sceneBuilder.GetOptions());
 	renderer.RenderScene();
